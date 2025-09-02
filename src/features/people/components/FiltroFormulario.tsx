@@ -14,46 +14,57 @@ cidade: z.string().optional(),
 type FormValues = z.infer<typeof schema>
 
 
-export default function FiltersForm() {
+type Props = {
+	defaultValues?: { q?: string; sexo?: 'M'|'F'|'N'; cidade?: string };
+	onSubmit?: (v: { q?: string; sexo?: 'M'|'F'|'N'; cidade?: string }) => void;
+	onClear?: () => void;
+}
+
+export default function FiltersForm(props: Props) {
 const { params, set } = useQueryString()
 
 
 const { register, handleSubmit, reset } = useForm<FormValues>({
-resolver: zodResolver(schema),
-defaultValues: {
-q: params.get('q') ?? '',
-sexo: (params.get('sexo') as 'M'|'F'|'N'|null) ?? undefined,
-cidade: params.get('cidade') ?? '',
-},
+	resolver: zodResolver(schema),
+	defaultValues: {
+		q: props.defaultValues?.q ?? params.get('q') ?? '',
+		sexo: props.defaultValues?.sexo ?? ((params.get('sexo') as 'M'|'F'|'N'|null) ?? undefined),
+		cidade: props.defaultValues?.cidade ?? params.get('cidade') ?? '',
+	},
 })
 
 
 function onSubmit(values: FormValues) {
-set({ q: values.q || undefined, sexo: values.sexo, cidade: values.cidade, page: 1 })
+	if (props.onSubmit) {
+		props.onSubmit(values)
+	} else {
+		set({ q: values.q || undefined, sexo: values.sexo, cidade: values.cidade, page: 1 })
+	}
 }
 
 
 function onClear() {
-reset({ q: '', sexo: undefined, cidade: '' })
-set({ q: undefined, sexo: undefined, cidade: undefined, page: 1 })
+	reset({ q: '', sexo: undefined, cidade: '' })
+	if (props.onClear) props.onClear()
+	else set({ q: undefined, sexo: undefined, cidade: undefined, page: 1 })
 }
 
 
 return (
-<form onSubmit={handleSubmit(onSubmit)} className="">
-<input {...register('q')} placeholder="Nome" className="" />
-<select {...register('sexo')} className="">
+<form onSubmit={handleSubmit(onSubmit)}>
+<input {...register('q')} placeholder="Nome" />
+<select {...register('sexo')}>
 <option value="">Sexo</option>
 <option value="M">Masculino</option>
 <option value="F">Feminino</option>
 <option value="N">Não informado</option>
 </select>
-<input {...register('cidade')} placeholder="Cidade" className="" />
+<input {...register('cidade')} placeholder="Cidade" />
 
 
-<div className="sm:col-span-3 flex gap-2">
-<button type="submit" className="">Aplicar</button>
-<button type="button" onClick={onClear} className="">Limpar</button>
+<div>
+<button type="submit">Aplicar</button>
+<button type="button" onClick={onClear}>Limpar</button>
 </div>
 </form>
 )

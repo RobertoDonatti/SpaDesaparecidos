@@ -1,24 +1,16 @@
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-
+import { useSearchParams } from 'react-router-dom'
 
 export function useQueryString() {
-const { search, pathname } = useLocation()
-const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
 
+  function set(obj: Record<string, string | number | boolean | undefined>) {
+    const next = new URLSearchParams(params)
+    for (const [k, v] of Object.entries(obj)) {
+      if (v === undefined || v === null || v === '') next.delete(k)
+      else next.set(k, String(v))
+    }
+    setParams(next, { replace: true })
+  }
 
-const params = useMemo(() => new URLSearchParams(search), [search])
-
-
-function set(next: Record<string, string | number | undefined | null>) {
-const p = new URLSearchParams(search)
-Object.entries(next).forEach(([k, v]) => {
-if (v === undefined || v === null || v === '') p.delete(k)
-else p.set(k, String(v))
-})
-navigate({ pathname, search: p.toString() }, { replace: true })
-}
-
-
-return { params, set }
+  return { params, set }
 }

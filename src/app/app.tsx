@@ -4,13 +4,13 @@ import { AppRoutes } from './router'
 
 export default function App() {
 return (
-<div className="Header">
+<div>
 <Header />
-<main className="NomeClasse">
+<main>
 <AppRoutes />
 </main>
-<footer className="Footer">
-Projeto Pratico — v1
+<footer>
+Projeto SPA-Desaparecidos
 </footer>
 </div>
 )

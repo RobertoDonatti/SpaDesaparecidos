@@ -1,14 +1,13 @@
-import { RouteObject, useRoutes } from 'react-router-dom'
-import Home from '../features/people/pages/Home.tsx'
-import PersonDetails from '../features/people/pages/DetalhePessoa'
+import { createBrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
 
+const Home = lazy(() => import("@/features/people/pages/Home"));
+const DetalhePessoa = lazy(() => import("@/features/people/pages/DetalhePessoa"));
 
-const routes: RouteObject[] = [
-{ path: '/', element: <Home /> },
-{ path: '/pessoa/:id', element: <PersonDetails /> },
-]
+const withSuspense = (el: JSX.Element, fb = "Carregando…") =>
+  <Suspense fallback={<div>{fb}</div>}>{el}</Suspense>;
 
-
-export function AppRoutes() {
-return useRoutes(routes)
-}
+export const router = createBrowserRouter([
+  { path: "/", element: withSuspense(<Home />, "Carregando lista…") },
+  { path: "/p/:id", element: withSuspense(<DetalhePessoa />, "Carregando detalhes…") },
+]);

@@ -1,76 +1,73 @@
-import { useSearchParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { listPeople } from '../api'
-import { Person } from '../types'
-import FiltersForm from '../components/FiltroFormulario'
-import PersonCard from '../components/CardPessoa'
-import EmptyState from '../../../components/EmptyState'
-import Loading from '../../../components/Loading'
-
+import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { listPeople } from "../api";
+import CardPessoa from "../components/CardPessoa";
+import type { Pessoa } from "../types";
+import FiltroFormulario from "../components/FiltroFormulario";
 
 export default function Home() {
-const [parametroDeBusca, setparametroDeBusca] = useSearchParams()
-const page = Number(parametroDeBusca.get('page') ?? '1')
-const size = Number(parametroDeBusca.get('size') ?? '12')
+  const [sp, setSp] = useSearchParams();
+  const page = Number(sp.get("page") || 1);
+  const q = sp.get("q") || "";
+  const sexo = (sp.get("sexo") as 'M'|'F'|'N'|null) ?? undefined;
+  const cidade = sp.get("cidade") || "";
 
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["people", { page, q, sexo, cidade }],
+    queryFn: () => listPeople({ page, size: 12, q, sexo, cidade }),
+    staleTime: 30_000,
+  });
 
-const { data, isLoading, isError } = useQuery({
-queryKey: ['people', Object.fromEntries(parametroDeBusca)],
-queryFn: () => listPeople({
-q: parametroDeBusca.get('q') ?? undefined,
-sexo: (parametroDeBusca.get('sexo') as 'M'|'F'|'N'|null) ?? undefined,
-cidade: parametroDeBusca.get('cidade') ?? undefined,
-page, size,
-}),
-keepPreviousData: true,
-})
+  const onSubmitFiltro = (val: { q?: string; sexo?: string; cidade?: string }) => {
+    if (val.q != null) sp.set("q", val.q);
+    if (val.sexo != null) sp.set("sexo", val.sexo);
+    if (val.cidade != null) sp.set("cidade", val.cidade);
+    sp.set("page", "1");
+    setSp(sp, { replace: true });
+  };
 
+  if (isLoading) return <div>Carregando…</div>;
+  if (isError) return (
+    <div>
+      <p>Erro: {(error as Error).message}</p>
+      <button onClick={() => refetch()}>Tentar novamente</button>
+    </div>
+  );
 
-function go(p: number) {
-parametroDeBusca.set('page', String(p))
-setparametroDeBusca(parametroDeBusca, { replace: true })
-}
+  const items: Pessoa[] = (data?.items as Pessoa[]) ?? [];
+  return (
+    <div>
+  <FiltroFormulario defaultValues={{ q, sexo, cidade }} onSubmit={onSubmitFiltro} />
 
+      {items.length === 0 ? (
+        <p>Nenhum registro encontrado.</p>
+      ) : (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+            {items.map((p: Pessoa) => (
+              <CardPessoa key={p.id} {...p} />
+            ))}
+          </div>
 
-return (
-<section className="">
-<h1 className="">Pessoas desaparecidas</h1>
-<FiltersForm />
-
-
-{isLoading && <Loading />}
-{isError && <EmptyState title="Erro ao carregar" description="Tente novamente mais tarde." />}
-
-
-{data && data.items.length === 0 && (
-<EmptyState title="Nada encontrado" description="Ajuste os filtros e tente outra busca." />
-)}
-
-
-{data && data.items.length > 0 && (
-<>
-<div className="">
-{data.items.map((p: Person) => (
-<PersonCard key={p.id} p={p} />
-))}
-</div>
-
-
-<div className="">
-<button
-className=""
-onClick={() => go(page - 1)}
-disabled={page <= 1}
->Anterior</button>
-<span className="">Página {page} de {data.totalPages}</span>
-<button
-className=""
-onClick={() => go(page + 1)}
-disabled={page >= data.totalPages}
->Próxima</button>
-</div>
-</>
-)}
-</section>
-)
+      {data?.totalPages && data.totalPages > 1 && (
+            <div>
+              <button
+                disabled={page <= 1}
+                onClick={() => { sp.set("page", String(page - 1)); setSp(sp, { replace: true }); }}
+              >
+                Anterior
+              </button>
+        <span> Página {page} de {data.totalPages} </span>
+              <button
+                disabled={page >= data.totalPages}
+                onClick={() => { sp.set("page", String(page + 1)); setSp(sp, { replace: true }); }}
+              >
+                Próxima
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
 }

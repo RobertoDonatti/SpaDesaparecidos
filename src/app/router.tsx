@@ -8,6 +8,6 @@ const withSuspense = (el: JSX.Element, fb = "Carregando…") =>
   <Suspense fallback={<div>{fb}</div>}>{el}</Suspense>;
 
 export const router = createBrowserRouter([
-  { path: "/", element: withSuspense(<Home />, "Carregando lista…") },
+  { path: "/", element: withSuspense(<Home />, "Carregando lista…") }, 
   { path: "/p/:id", element: withSuspense(<DetalhePessoa />, "Carregando detalhes…") },
 ]);

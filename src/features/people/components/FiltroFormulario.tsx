@@ -6,7 +6,7 @@ import { useQueryString } from '../../../utils/useQueryString'
 
 const schema = z.object({
 q: z.string().optional(),
-sexo: z.enum(['M','F','N']).optional(),
+sexo: z.enum(['MASCULINO','FEMININO']).optional(),
 cidade: z.string().optional(),
 })
 
@@ -15,12 +15,12 @@ type FormValues = z.infer<typeof schema>
 
 
 type Props = {
-	defaultValues?: { q?: string; sexo?: 'M'|'F'|'N'; cidade?: string };
-	onSubmit?: (v: { q?: string; sexo?: 'M'|'F'|'N'; cidade?: string }) => void;
+	defaultValues?: { q?: string; sexo?: 'MASCULINO'|'FEMININO'; cidade?: string };
+	onSubmit?: (v: { q?: string; sexo?: 'MASCULINO'|'FEMININO'; cidade?: string }) => void;
 	onClear?: () => void;
 }
 
-export default function FiltersForm(props: Props) {
+export default function FiltroFormulario(props: Props) {
 const { params, set } = useQueryString()
 
 
@@ -28,7 +28,7 @@ const { register, handleSubmit, reset } = useForm<FormValues>({
 	resolver: zodResolver(schema),
 	defaultValues: {
 		q: props.defaultValues?.q ?? params.get('q') ?? '',
-		sexo: props.defaultValues?.sexo ?? ((params.get('sexo') as 'M'|'F'|'N'|null) ?? undefined),
+		sexo: props.defaultValues?.sexo ?? ((params.get('sexo') as 'MASCULINO'|'FEMININO'|null) ?? undefined),
 		cidade: props.defaultValues?.cidade ?? params.get('cidade') ?? '',
 	},
 })
@@ -51,20 +51,78 @@ function onClear() {
 
 
 return (
-<form onSubmit={handleSubmit(onSubmit)}>
-<input {...register('q')} placeholder="Nome" />
-<select {...register('sexo')}>
+<form onSubmit={handleSubmit(onSubmit)} style={{ 
+	display: 'flex', 
+	gap: 16, 
+	alignItems: 'center', 
+	justifyContent: 'center',
+	marginBottom: 30,
+	padding: 20,
+	background: '#f8f9fa',
+	borderRadius: 8
+}}>
+<input 
+	{...register('q')} 
+	placeholder="Nome" 
+	style={{ 
+		padding: '8px 12px', 
+		border: '1px solid #ddd', 
+		borderRadius: 4,
+		minWidth: 150
+	}} 
+/>
+<select 
+	{...register('sexo')} 
+	style={{ 
+		padding: '8px 12px', 
+		border: '1px solid #ddd', 
+		borderRadius: 4,
+		minWidth: 120
+	}}
+>
 <option value="">Sexo</option>
-<option value="M">Masculino</option>
-<option value="F">Feminino</option>
-<option value="N">Não informado</option>
+<option value="MASCULINO">Masculino</option>
+<option value="FEMININO">Feminino</option>
 </select>
-<input {...register('cidade')} placeholder="Cidade" />
+<input 
+	{...register('cidade')} 
+	placeholder="Cidade" 
+	style={{ 
+		padding: '8px 12px', 
+		border: '1px solid #ddd', 
+		borderRadius: 4,
+		minWidth: 150
+	}} 
+/>
 
-
-<div>
-<button type="submit">Aplicar</button>
-<button type="button" onClick={onClear}>Limpar</button>
+<div style={{ display: 'flex', gap: 8 }}>
+<button 
+	type="submit"
+	style={{ 
+		padding: '8px 16px', 
+		background: '#007bff', 
+		color: 'white', 
+		border: 'none', 
+		borderRadius: 4,
+		cursor: 'pointer'
+	}}
+>
+	Aplicar
+</button>
+<button 
+	type="button" 
+	onClick={onClear}
+	style={{ 
+		padding: '8px 16px', 
+		background: '#6c757d', 
+		color: 'white', 
+		border: 'none', 
+		borderRadius: 4,
+		cursor: 'pointer'
+	}}
+>
+	Limpar
+</button>
 </div>
 </form>
 )

@@ -1,15 +1,23 @@
 export type Pessoa = {
-	id: string
+	id: number
 	nome: string
-	sexo?: 'M' | 'F' | 'N'
-	idade?: number
-	cidade?: string
-	uf?: string
-	dataDesaparecimento?: string // ISO
-	fotoUrl?: string
-	status?: 'Desaparecido' | 'Localizada'
+	sexo: 'MASCULINO' | 'FEMININO'
+	idade: number
+	vivo: boolean
+	urlFoto: string
+	ultimaOcorrencia: {
+		dtDesaparecimento: string
+		dataLocalizacao: string | null
+		encontradoVivo: boolean
+		localDesaparecimentoConcat: string
+		ocorrenciaEntrevDesapDTO: {
+			informacao: string | null
+			vestimentasDesaparecido: string
+		} | null
+		listaCartaz: any[]
+		ocoId: number
+	}
 }
-
 
 export type PageResponse<T> = {
 	items: T[]
@@ -19,11 +27,11 @@ export type PageResponse<T> = {
 	totalPages: number
 }
 
-
 export type FiltroPessoa = {
 	q?: string
-	sexo?: 'M' | 'F' | 'N'
+	sexo?: 'MASCULINO' | 'FEMININO'
 	cidade?: string
 	page?: number
 	size?: number
+	registros?: number
 }

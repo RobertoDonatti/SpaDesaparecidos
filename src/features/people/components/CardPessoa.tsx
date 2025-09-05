@@ -4,22 +4,28 @@ import type { Pessoa } from "../types";
 
 export default function CardPessoa(p: Pessoa) {
 	const fallback = "https://placehold.co/640x480?text=Sem+foto";
-	const idadeSexo = [
-		p.idade != null ? `${p.idade} anos` : null,
-		p.sexo ? (p.sexo === "M" ? "Masculino" : p.sexo === "F" ? "Feminino" : p.sexo) : null,
-	].filter(Boolean).join(", ");
-
-	const local = [p.cidade, p.uf].filter(Boolean).join("/");
-	// Supondo que status venha como p.status: "Desaparecido" | "Localizada"
-	const status = p.status === "Localizada" ? "Localizada" : "Desaparecido";
+	
+	// Extrair informações do objeto
+	const sexoFormatado = p.sexo === "MASCULINO" ? "Masculino" : "Feminino";
+	const idadeSexo = `${p.idade} anos, ${sexoFormatado}`;
+	
+	// Extrair cidade e estado do localDesaparecimentoConcat
+	const localParts = p.ultimaOcorrencia.localDesaparecimentoConcat.split(' - ');
+	const local = localParts.length > 1 ? localParts[1] : p.ultimaOcorrencia.localDesaparecimentoConcat;
+	
+	// Status baseado em se foi encontrado vivo
+	const status = p.ultimaOcorrencia.dataLocalizacao ? "Localizada" : "Desaparecido";
 	const statusColor = status === "Localizada" ? "#22c55e" : "#ef4444";
+	
+	// Data de desaparecimento
+	const dataDesaparecimento = p.ultimaOcorrencia.dtDesaparecimento;
 
-		return (
-			<Link to={`/p/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+	return (
+		<Link to={`/p/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
 			<div style={{ border: '1px solid #e5e7eb', borderRadius: 8, overflow: 'hidden', boxShadow: '0 2px 8px #0001', background: '#fff', margin: 8 }}>
 				<div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', background: '#f3f4f6' }}>
 					<img
-						src={p.fotoUrl || fallback}
+						src={p.urlFoto || fallback}
 						onError={(e)=>((e.currentTarget as HTMLImageElement).src=fallback)}
 						alt={`Foto de ${p.nome}`}
 						loading="lazy"
@@ -30,10 +36,10 @@ export default function CardPessoa(p: Pessoa) {
 					</span>
 				</div>
 				<div style={{ padding: 16 }}>
-					<h3 style={{ fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>{p.nome}</h3>
-					{idadeSexo && <p style={{ fontSize: 14, color: '#6b7280', marginBottom: 8 }}>{idadeSexo}</p>}
+					<h3 style={{ fontWeight: 600, textTransform: 'uppercase', marginBottom: 4, fontSize: 14 }}>{p.nome}</h3>
+					<p style={{ fontSize: 14, color: '#6b7280', marginBottom: 8 }}>{idadeSexo}</p>
 					<div style={{ fontSize: 14 }}>
-						<p><span style={{ fontWeight: 500 }}>Data:</span> {formatDateBR(p.dataDesaparecimento)}</p>
+						<p><span style={{ fontWeight: 500 }}>Data:</span> {formatDateBR(dataDesaparecimento)}</p>
 						<p><span style={{ fontWeight: 500 }}>Local:</span> {local || "—"}</p>
 					</div>
 				</div>

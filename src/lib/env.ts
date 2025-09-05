@@ -1,5 +1,3 @@
-// src/lib/env.ts
-
 function getEnvVar(key: string, fallback?: string): string {
   const value = import.meta.env[key] as string | undefined;
   if (!value && !fallback) {

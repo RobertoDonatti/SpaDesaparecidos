@@ -5,26 +5,25 @@ export function formatDateBR(iso?: string | null) {
   return d.toLocaleDateString("pt-BR");
 }
 
-// "há 3 dias", "há 2 meses"
+// "4 dias", "2 meses", "1 ano"
 export function sinceBR(iso?: string | null) {
   if (!iso) return "—";
   const now = new Date();
   const then = new Date(iso);
   const diffMs = now.getTime() - then.getTime();
 
-  const sec = Math.round(diffMs / 1000);
-  const min = Math.round(sec / 60);
-  const hour = Math.round(min / 60);
-  const day = Math.round(hour / 24);
-  const month = Math.round(day / 30);
-  const year = Math.round(day / 365);
+  const day = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const month = Math.floor(day / 30);
+  const year = Math.floor(day / 365);
 
-  const rtf = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" });
-
-  if (Math.abs(year) >= 1)  return rtf.format(-year, "year");
-  if (Math.abs(month) >= 1) return rtf.format(-month, "month");
-  if (Math.abs(day) >= 1)   return rtf.format(-day, "day");
-  if (Math.abs(hour) >= 1)  return rtf.format(-hour, "hour");
-  if (Math.abs(min) >= 1)   return rtf.format(-min, "minute");
-  return rtf.format(-sec, "second");
+  if (year >= 1) {
+    return year === 1 ? "1 ano" : `${year} anos`;
+  }
+  if (month >= 1) {
+    return month === 1 ? "1 mês" : `${month} meses`;
+  }
+  if (day >= 1) {
+    return day === 1 ? "1 dia" : `${day} dias`;
+  }
+  return "hoje";
 }

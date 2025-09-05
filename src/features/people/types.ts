@@ -14,7 +14,7 @@ export type Pessoa = {
 			informacao: string | null
 			vestimentasDesaparecido: string
 		} | null
-		listaCartaz: any[]
+		listaCartaz: unknown[]
 		ocoId: number
 	}
 }

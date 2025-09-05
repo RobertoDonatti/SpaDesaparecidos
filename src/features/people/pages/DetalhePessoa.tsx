@@ -21,8 +21,6 @@ function DetalhesPessoa() {
 
 	// Extrair informações
 	const sexoFormatado = data.sexo === "MASCULINO" ? "Masculino" : "Feminino";
-	const localParts = data.ultimaOcorrencia.localDesaparecimentoConcat.split(' - ');
-	const local = localParts.length > 1 ? localParts[1] : data.ultimaOcorrencia.localDesaparecimentoConcat;
 	const status = data.ultimaOcorrencia.dataLocalizacao ? "LOCALIZADA" : "DESAPARECIDA";
 	const statusColor = status === "LOCALIZADA" ? "#22c55e" : "#ef4444";
 	const diasDesaparecida = sinceBR(data.ultimaOcorrencia.dtDesaparecimento);

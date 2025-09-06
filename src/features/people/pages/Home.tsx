@@ -1,12 +1,11 @@
-import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { listPeople } from "../api";
 import CardPessoa from "../components/CardPessoa";
 import type { Pessoa } from "../types";
 
 function Home() {
-    const [sp] = useSearchParams();
-    const registros = Number(sp.get("registros") || 12);
+    // Solicitar mais registros para garantir que sempre tenhamos pelo menos 12
+    const registros = 20; // Aumentei para 20 para ter margem de segurança
 
     const { data, isLoading, isError, error, refetch } = useQuery({
       queryKey: ["people", { registros }],
@@ -30,19 +29,22 @@ function Home() {
         <div style={{ marginBottom: 20 }}>
           <h2 style={{ textAlign: 'center', marginBottom: 20, fontSize: 24, fontWeight: 600 }}>Resultado</h2>
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
-            <p>Exibindo {items.length} registros</p>
+            <p>Exibindo {Math.min(items.length, 12)} de 12 registros por página</p>
           </div>
         </div>
 
-        {items.length === 0 ? (
-          <p style={{ textAlign: 'center', padding: 40 }}>Nenhum registro encontrado.</p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16, maxWidth: 1200, margin: '0 auto' }}>
-            {items.map((p: Pessoa) => (
-              <CardPessoa key={p.id} {...p} />
-            ))}
-          </div>
-        )}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: 16, 
+          maxWidth: 1200, 
+          margin: '0 auto' 
+        }}>
+          {/* Sempre exibir exatamente 12 registros */}
+          {items.slice(0, 12).map((pessoa: Pessoa) => (
+            <CardPessoa key={pessoa.id} {...pessoa} />
+          ))}
+        </div>
       </div>
     );
 }

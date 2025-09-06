@@ -21,9 +21,28 @@ function DetalhesPessoa() {
 
 	// Extrair informações
 	const sexoFormatado = data.sexo === "MASCULINO" ? "Masculino" : "Feminino";
-	const status = data.ultimaOcorrencia.dataLocalizacao ? "LOCALIZADA" : "DESAPARECIDA";
-	const statusColor = status === "LOCALIZADA" ? "#22c55e" : "#ef4444";
-	const diasDesaparecida = sinceBR(data.ultimaOcorrencia.dtDesaparecimento);
+	
+	// Verificar se a pessoa foi localizada
+	const foiLocalizada = !!data.ultimaOcorrencia.dataLocalizacao;
+	
+	// Status com base no sexo e situação
+	const statusTexto = foiLocalizada 
+		? (data.sexo === "MASCULINO" ? "LOCALIZADO" : "LOCALIZADA")
+		: (data.sexo === "MASCULINO" ? "DESAPARECIDO" : "DESAPARECIDA");
+	
+	// Cores: verde para localizado, vermelho para desaparecido
+	const statusColor = foiLocalizada ? "#22c55e" : "#ef4444";
+	
+	const tempoDesaparecido = sinceBR(data.ultimaOcorrencia.dtDesaparecimento);
+	
+	// Texto para tempo desaparecido/localizado com concordância de gênero
+	const textoTempo = foiLocalizada
+		? (data.sexo === "MASCULINO" 
+			? `LOCALIZADO EM ${formatDateBR(data.ultimaOcorrencia.dataLocalizacao!)}`
+			: `LOCALIZADA EM ${formatDateBR(data.ultimaOcorrencia.dataLocalizacao!)}`)
+		: (data.sexo === "MASCULINO" 
+			? `DESAPARECIDO HÁ ${tempoDesaparecido.toUpperCase()}!`
+			: `DESAPARECIDA HÁ ${tempoDesaparecido.toUpperCase()}!`);
 	
 	return (
 		<div style={{ 
@@ -70,7 +89,7 @@ function DetalhesPessoa() {
 					display: 'inline-block',
 					marginBottom: 16
 				}}>
-					{status}
+					{statusTexto}
 				</div>
 
 				{/* Nome */}
@@ -93,112 +112,226 @@ function DetalhesPessoa() {
 					{data.idade} anos - {sexoFormatado}
 				</p>
 
-				{/* Dados sobre o Desaparecimento */}
-				<div style={{ marginBottom: 32 }}>
-					<h2 style={{ 
-						fontSize: 20, 
-						fontWeight: 'bold', 
-						marginBottom: 16,
-						color: '#1f2937'
-					}}>
-						Dados sobre o Desaparecimento
-					</h2>
-					
-					<div style={{ lineHeight: 1.6, fontSize: 16 }}>
-						<p><strong>Data:</strong> {formatDateBR(data.ultimaOcorrencia.dtDesaparecimento)}</p>
-						<p><strong>Local:</strong> {data.ultimaOcorrencia.localDesaparecimentoConcat}</p>
-						{data.ultimaOcorrencia.ocorrenciaEntrevDesapDTO?.vestimentasDesaparecido && (
-							<p><strong>Vestimenta:</strong> {data.ultimaOcorrencia.ocorrenciaEntrevDesapDTO.vestimentasDesaparecido}</p>
-						)}
-						{data.ultimaOcorrencia.ocorrenciaEntrevDesapDTO?.informacao && (
-							<p><strong>Informações adicionais:</strong> {data.ultimaOcorrencia.ocorrenciaEntrevDesapDTO.informacao}</p>
-						)}
+				{/* Dados condicionais baseados no status */}
+				{foiLocalizada ? (
+					// Seção para pessoas localizadas
+					<div style={{ marginBottom: 32 }}>
+						<h2 style={{ 
+							fontSize: 20, 
+							fontWeight: 'bold', 
+							marginBottom: 16,
+							color: '#1f2937'
+						}}>
+							Informações sobre a Localização
+						</h2>
+						
+						<div style={{ lineHeight: 1.6, fontSize: 16 }}>
+							<p><strong>Data da Localização:</strong> {formatDateBR(data.ultimaOcorrencia.dataLocalizacao!)}</p>
+							<p><strong>Status:</strong> Encontrada viva e bem</p>
+							<p><strong>Data do Desaparecimento:</strong> {formatDateBR(data.ultimaOcorrencia.dtDesaparecimento)}</p>
+							<p><strong>Local do Desaparecimento:</strong> {data.ultimaOcorrencia.localDesaparecimentoConcat}</p>
+						</div>
 					</div>
-				</div>
+				) : (
+					// Seção para pessoas desaparecidas
+					<div style={{ marginBottom: 32 }}>
+						<h2 style={{ 
+							fontSize: 20, 
+							fontWeight: 'bold', 
+							marginBottom: 16,
+							color: '#1f2937'
+						}}>
+							Dados sobre o Desaparecimento
+						</h2>
+						
+						<div style={{ lineHeight: 1.6, fontSize: 16 }}>
+							<p><strong>Data:</strong> {formatDateBR(data.ultimaOcorrencia.dtDesaparecimento)}</p>
+							<p><strong>Local:</strong> {data.ultimaOcorrencia.localDesaparecimentoConcat}</p>
+							{data.ultimaOcorrencia.ocorrenciaEntrevDesapDTO?.vestimentasDesaparecido && (
+								<p><strong>Vestimenta:</strong> {data.ultimaOcorrencia.ocorrenciaEntrevDesapDTO.vestimentasDesaparecido}</p>
+							)}
+							{data.ultimaOcorrencia.ocorrenciaEntrevDesapDTO?.informacao && (
+								<p><strong>Informações adicionais:</strong> {data.ultimaOcorrencia.ocorrenciaEntrevDesapDTO.informacao}</p>
+							)}
+						</div>
+					</div>
+				)}
 
-				{/* Alerta de Tempo */}
+				{/* Alerta de Status */}
 				<div style={{ 
-					background: '#fef2f2', 
-					border: '1px solid #fecaca',
+					background: foiLocalizada ? '#f0fdf4' : '#fef2f2', 
+					border: foiLocalizada ? '1px solid #bbf7d0' : '1px solid #fecaca',
 					borderRadius: 8,
 					padding: 16,
 					marginBottom: 32
 				}}>
 					<p style={{ 
-						color: '#dc2626', 
+						color: foiLocalizada ? '#15803d' : '#dc2626', 
 						fontWeight: 'bold',
 						fontSize: 18,
 						margin: 0
 					}}>
-						DESAPARECIDA HÁ {diasDesaparecida.toUpperCase()}!
+						{textoTempo}
 					</p>
 				</div>
 
-				{/* Botão de Informação */}
-				<button 
-					onClick={() => setShowForm(!showForm)}
-					style={{ 
-						background: '#ef4444', 
-						color: 'white',
-						border: 'none',
-						borderRadius: 8,
-						padding: '12px 24px',
-						fontSize: 16,
-						fontWeight: 'bold',
-						cursor: 'pointer',
-						display: 'flex',
-						alignItems: 'center',
-						gap: 8,
-						marginBottom: 24
-					}}
-				>
-					<span>📍</span>
-					VIU OU SABE DESSA PESSOA?
-				</button>
-
-				{/* Compartilhamento */}
-				<div>
-					<h3 style={{ 
-						fontSize: 18, 
-						fontWeight: 'bold', 
-						marginBottom: 16,
-						color: '#1f2937'
-					}}>
-						Ajude compartilhando:
-					</h3>
-					
-					<div style={{ display: 'flex', gap: 12 }}>
-						<button style={{ 
-							background: '#25d366', 
-							color: 'white',
-							border: 'none',
-							borderRadius: 6,
-							padding: '8px 16px',
-							fontSize: 14,
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: 8
+				{/* Botões condicionais */}
+				{foiLocalizada ? (
+					// Seção para pessoas localizadas
+					<div style={{ marginBottom: 32 }}>
+						<h3 style={{ 
+							fontSize: 18, 
+							fontWeight: 'bold', 
+							marginBottom: 16,
+							color: '#1f2937'
 						}}>
-							📱 COMPARTILHE PELO WHATSAPP
-						</button>
+							Compartilhar a boa notícia
+						</h3>
 						
-						<button style={{ 
-							background: '#e1306c', 
+						<div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+							<button 
+								onClick={() => {
+									const texto = `🎉 ÓTIMA NOTÍCIA! ${data.nome} foi ${statusTexto.toLowerCase()} e está bem! Obrigado a todos que ajudaram na divulgação. 🙏`;
+									const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+									window.open(url, '_blank');
+								}}
+								style={{ 
+									background: '#25d366', 
+									color: 'white',
+									border: 'none',
+									borderRadius: 8,
+									padding: '12px 20px',
+									fontSize: 14,
+									fontWeight: 'bold',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8
+								}}
+							>
+								📱 WhatsApp
+							</button>
+							
+							<button 
+								onClick={() => {
+									const texto = `🎉 ÓTIMA NOTÍCIA! ${data.nome} foi ${statusTexto.toLowerCase()} e está bem! Obrigado a todos que ajudaram na divulgação. 🙏 Link: ${window.location.href}`;
+									navigator.clipboard.writeText(texto);
+									alert('Texto copiado! Agora cole no Instagram.');
+								}}
+								style={{ 
+									background: '#e1306c', 
+									color: 'white',
+									border: 'none',
+									borderRadius: 8,
+									padding: '12px 20px',
+									fontSize: 14,
+									fontWeight: 'bold',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8
+								}}
+							>
+								� Instagram
+							</button>
+						</div>
+					</div>
+				) : (
+					// Botão de informação para pessoas desaparecidas
+					<button 
+						onClick={() => setShowForm(!showForm)}
+						style={{ 
+							background: '#ef4444', 
 							color: 'white',
 							border: 'none',
-							borderRadius: 6,
-							padding: '8px 16px',
-							fontSize: 14,
+							borderRadius: 8,
+							padding: '12px 24px',
+							fontSize: 16,
+							fontWeight: 'bold',
 							cursor: 'pointer',
 							display: 'flex',
 							alignItems: 'center',
-							gap: 8
+							gap: 8,
+							marginBottom: 24
+						}}
+					>
+						<span>📍</span>
+						VIU OU SABE DESSA PESSOA?
+					</button>
+				)}
+
+				{/* Seção de compartilhamento para pessoas desaparecidas */}
+				{!foiLocalizada && (
+					<div style={{ marginBottom: 32 }}>
+						<h3 style={{ 
+							fontSize: 18, 
+							fontWeight: 'bold', 
+							marginBottom: 16,
+							color: '#1f2937'
 						}}>
-							📸 BAIXE O CARTAZ PARA INSTAGRAM
-						</button>
+							Ajude compartilhando:
+						</h3>
+						
+						<div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+							<button 
+								onClick={() => {
+									const texto = `🚨 PESSOA DESAPARECIDA: ${data.nome}, ${data.idade} anos. Desapareceu em ${data.ultimaOcorrencia.localDesaparecimentoConcat}. Se tiver informações, denuncie!`;
+									const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+									window.open(url, '_blank');
+								}}
+								style={{ 
+									background: '#25d366', 
+									color: 'white',
+									border: 'none',
+									borderRadius: 6,
+									padding: '8px 16px',
+									fontSize: 14,
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8
+								}}
+							>
+								📱 COMPARTILHE PELO WHATSAPP
+							</button>
+							
+							<button 
+								onClick={() => {
+									const texto = `🚨 PESSOA DESAPARECIDA: ${data.nome}, ${data.idade} anos. Desapareceu em ${data.ultimaOcorrencia.localDesaparecimentoConcat}. Link: ${window.location.href}`;
+									navigator.clipboard.writeText(texto);
+									alert('Texto copiado! Agora cole no Instagram.');
+								}}
+								style={{ 
+									background: '#e1306c', 
+									color: 'white',
+									border: 'none',
+									borderRadius: 6,
+									padding: '8px 16px',
+									fontSize: 14,
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8
+								}}
+							>
+								📸 COMPARTILHE NO INSTAGRAM
+							</button>
+						</div>
 					</div>
-				</div>
+				)}
+
+				{/* Formulário de Informação - apenas para desaparecidos */}
+				{showForm && !foiLocalizada && (
+					<div style={{ 
+						marginTop: 32,
+						padding: 24,
+						background: '#f9fafb',
+						borderRadius: 8,
+						border: '1px solid #e5e7eb'
+					}}>
+						<EnviarInformacaoForm personId={id!} onSubmitted={() => setShowForm(false)} />
+					</div>
+				)}
 
 				{/* Voltar */}
 				<div style={{ marginTop: 32 }}>
@@ -214,19 +347,6 @@ function DetalhesPessoa() {
 						← Voltar para lista
 					</Link>
 				</div>
-
-				{/* Formulário de Informação */}
-				{showForm && (
-					<div style={{ 
-						marginTop: 32,
-						padding: 24,
-						background: '#f9fafb',
-						borderRadius: 8,
-						border: '1px solid #e5e7eb'
-					}}>
-						<EnviarInformacaoForm personId={id!} onSubmitted={() => setShowForm(false)} />
-					</div>
-				)}
 			</div>
 		</div>
 	)

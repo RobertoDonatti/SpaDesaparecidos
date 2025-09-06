@@ -5,7 +5,7 @@ import { useQueryString } from '../../../utils/useQueryString'
 
 
 const schema = z.object({
-q: z.string().optional(),
+nome: z.string().optional(),
 sexo: z.enum(['MASCULINO','FEMININO']).optional(),
 cidade: z.string().optional(),
 })
@@ -15,8 +15,8 @@ type FormValues = z.infer<typeof schema>
 
 
 type Props = {
-	defaultValues?: { q?: string; sexo?: 'MASCULINO'|'FEMININO'; cidade?: string };
-	onSubmit?: (v: { q?: string; sexo?: 'MASCULINO'|'FEMININO'; cidade?: string }) => void;
+	defaultValues?: { nome?: string; sexo?: 'MASCULINO'|'FEMININO'; cidade?: string };
+	onSubmit?: (v: { nome?: string; sexo?: 'MASCULINO'|'FEMININO'; cidade?: string }) => void;
 	onClear?: () => void;
 }
 
@@ -27,7 +27,7 @@ const { params, set } = useQueryString()
 const { register, handleSubmit, reset } = useForm<FormValues>({
 	resolver: zodResolver(schema),
 	defaultValues: {
-		q: props.defaultValues?.q ?? params.get('q') ?? '',
+		nome: props.defaultValues?.nome ?? params.get('nome') ?? '',
 		sexo: props.defaultValues?.sexo ?? ((params.get('sexo') as 'MASCULINO'|'FEMININO'|null) ?? undefined),
 		cidade: props.defaultValues?.cidade ?? params.get('cidade') ?? '',
 	},
@@ -38,15 +38,15 @@ function onSubmit(values: FormValues) {
 	if (props.onSubmit) {
 		props.onSubmit(values)
 	} else {
-		set({ q: values.q || undefined, sexo: values.sexo, cidade: values.cidade, page: 1 })
+		set({ nome: values.nome || undefined, sexo: values.sexo, cidade: values.cidade, page: 1 })
 	}
 }
 
 
 function onClear() {
-	reset({ q: '', sexo: undefined, cidade: '' })
+	reset({ nome: '', sexo: undefined, cidade: '' })
 	if (props.onClear) props.onClear()
-	else set({ q: undefined, sexo: undefined, cidade: undefined, page: 1 })
+	else set({ nome: undefined, sexo: undefined, cidade: undefined, page: 1 })
 }
 
 
@@ -62,7 +62,7 @@ return (
 	borderRadius: 8
 }}>
 <input 
-	{...register('q')} 
+	{...register('nome')} 
 	placeholder="Nome" 
 	style={{ 
 		padding: '8px 12px', 

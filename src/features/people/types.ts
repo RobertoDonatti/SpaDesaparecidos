@@ -3,12 +3,13 @@ export type Pessoa = {
 	nome: string
 	sexo: 'MASCULINO' | 'FEMININO'
 	idade: number
-	vivo: boolean
+	vivo: true
 	urlFoto: string
 	ultimaOcorrencia: {
 		dtDesaparecimento: string
 		dataLocalizacao: string | null
-		encontradoVivo: boolean
+		encontradoVivo: true 
+		//Alterado de boolean para true pois, havia implementado uma lógica caso a pessoa fosse encontrada sem vida porém, na documentação da API, verifiquei que sempre retornará true quando a pessoa for localizada ou não.
 		localDesaparecimentoConcat: string
 		ocorrenciaEntrevDesapDTO: {
 			informacao: string | null
@@ -28,7 +29,7 @@ export type PageResponse<T> = {
 }
 
 export type FiltroPessoa = {
-	q?: string
+	nome?: string
 	sexo?: 'MASCULINO' | 'FEMININO'
 	cidade?: string
 	page?: number

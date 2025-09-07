@@ -28,6 +28,25 @@ export type PageResponse<T> = {
 	totalPages: number
 }
 
+// Tipos para filtros de busca
+export interface FiltroBusca {
+	nome?: string;
+	sexo?: 'M' | 'F';
+	idadeMinima?: number;
+	idadeMaxima?: number;
+}
+
+// Tipos para estatísticas
+export interface EstatisticasPessoas {
+	quantPessoasDesaparecidas: number;
+	quantPessoasEncontradas: number;
+}
+
+// Interface para filtro de status
+export interface FiltroStatus {
+	status?: 'DESAPARECIDO' | 'LOCALIZADO';
+}
+
 export type FiltroPessoa = {
 	nome?: string
 	sexo?: 'MASCULINO' | 'FEMININO'
@@ -35,4 +54,14 @@ export type FiltroPessoa = {
 	page?: number
 	size?: number
 	registros?: number
+	paginaAtual?: number
+	registrosPorPagina?: number
+}
+
+export type RespostaPaginacao = {
+	pessoas: Pessoa[]
+	paginaAtual: number
+	registrosPorPagina: number
+	totalRegistros: number
+	totalPaginas: number
 }

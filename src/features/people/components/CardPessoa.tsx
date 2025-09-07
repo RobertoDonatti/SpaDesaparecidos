@@ -13,7 +13,7 @@ export default function CardPessoa(pessoa: Pessoa) {
 	const localParts = pessoa.ultimaOcorrencia.localDesaparecimentoConcat.split(' - ');
 	const local = localParts.length > 1 ? localParts[1] : pessoa.ultimaOcorrencia.localDesaparecimentoConcat;
 	
-	// Status baseado em se foi encontrado vivo e concordância de gênero
+	// Satus atualizado para considerar o sexo do indivíduo
 	const status = pessoa.ultimaOcorrencia.dataLocalizacao 
 		? (pessoa.sexo === "MASCULINO" ? "Localizado" : "Localizada")
 		: (pessoa.sexo === "MASCULINO" ? "Desaparecido" : "Desaparecida");

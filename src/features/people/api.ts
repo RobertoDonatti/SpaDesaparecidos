@@ -46,8 +46,10 @@ async function buscarTodosOsRegistros(): Promise<Pessoa[]> {
 		
 		const response = await fetch(url, {
 			method: 'GET',
+			mode: 'cors',
 			headers: {
-				'accept': '*/*'
+				'accept': 'application/json',
+				'Content-Type': 'application/json'
 			}
 		});
 		
@@ -71,6 +73,22 @@ async function buscarTodosOsRegistros(): Promise<Pessoa[]> {
 		
 	} catch (error) {
 		console.error('❌ Erro ao buscar registros:', error);
+		
+		// Verificar se é erro CORS específico
+		if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+			console.error('🚫 Erro CORS detectado - API não permite requisições do navegador');
+			console.log('🔄 Usando dados de fallback para desenvolvimento');
+			
+			// Importar dados de fallback apenas quando necessário
+			const { dadosFallback } = await import('./dadosFallback');
+			
+			// Atualizar cache com dados de fallback
+			cacheGlobal.todosOsRegistros = dadosFallback;
+			cacheGlobal.totalRegistros = dadosFallback.length;
+			cacheGlobal.ultimaAtualizacao = agora;
+			
+			return dadosFallback;
+		}
 		
 		// Se falhar e tivermos cache antigo, usar ele
 		if (cacheGlobal.todosOsRegistros) {
@@ -210,8 +228,10 @@ export async function buscarEstatisticas(): Promise<EstatisticasPessoas> {
 		
 		const response = await fetch(url, {
 			method: 'GET',
+			mode: 'cors',
 			headers: {
-				'accept': '*/*'
+				'accept': 'application/json',
+				'Content-Type': 'application/json'
 			}
 		});
 		
@@ -225,6 +245,14 @@ export async function buscarEstatisticas(): Promise<EstatisticasPessoas> {
 		return dados;
 	} catch (error) {
 		console.error('❌ Erro ao buscar estatísticas:', error);
+		
+		// Se falhar por CORS, usar estatísticas dos dados de fallback
+		if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+			console.log('🔄 Usando estatísticas de fallback');
+			const { obterEstatisticasFallback } = await import('./dadosFallback');
+			return obterEstatisticasFallback();
+		}
+		
 		// Retornar dados padrão em caso de erro
 		return {
 			quantPessoasDesaparecidas: 0,

@@ -22,7 +22,7 @@ export function usePaginacaoDinamica() {
 		queryFn: () => listarPessoasPaginadas({ 
 			paginaAtual, 
 			registrosPorPagina,
-			statusFiltro: statusPadrao === 'TODOS' ? undefined : statusPadrao
+			statusFiltro: statusPadrao
 		}),
 		retry: 1,
 		staleTime: 1000 * 30, // 30 segundos - dados mais frescos

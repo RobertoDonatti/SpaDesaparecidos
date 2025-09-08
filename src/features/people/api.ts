@@ -21,7 +21,7 @@ export async function obterTotalRegistros(): Promise<number> {
 		const todosOsRegistros = await buscarTodosOsRegistros();
 		return todosOsRegistros.length;
 	} catch (error) {
-		console.error('❌ Erro ao obter total, usando padrão:', error);
+		console.error('Erro ao obter total, usando padrão:', error);
 		return 74; // Valor padrão baseado nas imagens mostradas
 	}
 }
@@ -41,7 +41,7 @@ async function buscarTodosOsRegistros(): Promise<Pessoa[]> {
 	}
 	
 	try {
-		console.log('🌐 Buscando todos os registros da API...');
+		console.log('Buscando todos os registros da API...');
 		const url = 'https://abitus-api.geia.vip/v1/pessoas/aberto/dinamico?registros=200';
 		
 		const response = await fetch(url, {
@@ -68,16 +68,16 @@ async function buscarTodosOsRegistros(): Promise<Pessoa[]> {
 		cacheGlobal.totalRegistros = dados.length;
 		cacheGlobal.ultimaAtualizacao = agora;
 		
-		console.log(`✅ Cache atualizado com ${dados.length} registros`);
+		console.log(`Cache atualizado com ${dados.length} registros`);
 		return dados;
 		
 	} catch (error) {
-		console.error('❌ Erro ao buscar registros:', error);
+		console.error('Erro ao buscar registros:', error);
 		
 		// Verificar se é erro CORS específico
 		if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
 			console.error('🚫 Erro CORS detectado - API não permite requisições do navegador');
-			console.log('🔄 Usando dados de fallback para desenvolvimento');
+			console.log('Usando dados de fallback para desenvolvimento');
 			
 			// Importar dados de fallback apenas quando necessário
 			const { dadosFallback } = await import('./dadosFallback');
@@ -92,7 +92,7 @@ async function buscarTodosOsRegistros(): Promise<Pessoa[]> {
 		
 		// Se falhar e tivermos cache antigo, usar ele
 		if (cacheGlobal.todosOsRegistros) {
-			console.log('⚠️ Usando cache antigo por erro na API');
+			console.log('Usando cache antigo por erro na API');
 			return cacheGlobal.todosOsRegistros;
 		}
 		
@@ -116,12 +116,12 @@ export async function listarPessoasPaginadas(filtros: FiltroPessoa & { statusFil
 			todosOsRegistros = todosOsRegistros.filter(pessoa => 
 				pessoa.ultimaOcorrencia.dataLocalizacao === null
 			);
-			console.log(`🔍 Filtro aplicado: apenas desaparecidos (${todosOsRegistros.length} registros)`);
+			console.log(`Filtro aplicado: apenas desaparecidos (${todosOsRegistros.length} registros)`);
 		} else if (filtros.statusFiltro === 'LOCALIZADO') {
 			todosOsRegistros = todosOsRegistros.filter(pessoa => 
 				pessoa.ultimaOcorrencia.dataLocalizacao !== null
 			);
-			console.log(`✅ Filtro aplicado: apenas localizados (${todosOsRegistros.length} registros)`);
+			console.log(`Filtro aplicado: apenas localizados (${todosOsRegistros.length} registros)`);
 		}
 		
 		// Calcular paginação baseada no total filtrado
@@ -135,8 +135,8 @@ export async function listarPessoasPaginadas(filtros: FiltroPessoa & { statusFil
 		const registrosParaPular = (paginaValidada - 1) * registrosPorPagina;
 		const pessoasDaPagina = todosOsRegistros.slice(registrosParaPular, registrosParaPular + registrosPorPagina);
 		
-		console.log(`✅ Página ${paginaValidada}/${totalPaginas} carregada`);
-		console.log(`📋 Exibindo ${pessoasDaPagina.length} registros de um total de ${totalRegistros}`);
+		console.log(`Página ${paginaValidada}/${totalPaginas} carregada`);
+		console.log(`Exibindo ${pessoasDaPagina.length} registros de um total de ${totalRegistros}`);
 		
 		return {
 			pessoas: pessoasDaPagina,
@@ -146,7 +146,7 @@ export async function listarPessoasPaginadas(filtros: FiltroPessoa & { statusFil
 			totalPaginas
 		};
 	} catch (error) {
-		console.error('❌ Erro na busca paginada:', error);
+		console.error('Erro na busca paginada:', error);
 		throw error;
 	}
 }
@@ -155,7 +155,7 @@ export async function listPeople(filters: FiltroPessoa): Promise<Pessoa[]> {
 	try {
 		const url = `https://abitus-api.geia.vip/v1/pessoas/aberto/dinamico?registros=${filters.registros || 12}`;
 		
-		console.log('🌐 Fazendo fetch direto para:', url);
+		console.log('Fazendo fetch direto para:', url);
 		
 		const response = await fetch(url, {
 			method: 'GET',
@@ -183,19 +183,19 @@ export function limparCacheGlobal() {
 	cacheGlobal.totalRegistros = null;
 	cacheGlobal.todosOsRegistros = null;
 	cacheGlobal.ultimaAtualizacao = null;
-	console.log('🗑️ Cache global limpo');
+	console.log('Cache global limpo');
 }
 
 // Função para forçar atualização de dados
 export async function forcarAtualizacaoDados(): Promise<void> {
-	console.log('🔄 Forçando atualização de dados...');
+	console.log('Forçando atualização de dados...');
 	
 	// Limpar cache
 	limparCacheGlobal();
 	
 	// Buscar dados novos
 	const dadosNovos = await buscarTodosOsRegistros();
-	console.log(`✅ Dados atualizados: ${dadosNovos.length} registros`);
+	console.log(`Dados atualizados: ${dadosNovos.length} registros`);
 }
 
 // Função para verificar status do cache (debug)
@@ -223,7 +223,7 @@ export function verificarStatusCache() {
 // Função para buscar estatísticas
 export async function buscarEstatisticas(): Promise<EstatisticasPessoas> {
 	try {
-		console.log('📊 Buscando estatísticas...');
+		console.log('Buscando estatísticas...');
 		const url = 'https://abitus-api.geia.vip/v1/pessoas/aberto/estatistico';
 		
 		const response = await fetch(url, {
@@ -240,15 +240,15 @@ export async function buscarEstatisticas(): Promise<EstatisticasPessoas> {
 		}
 		
 		const dados = await response.json();
-		console.log('✅ Estatísticas carregadas:', dados);
+		console.log('Estatísticas carregadas:', dados);
 		
 		return dados;
 	} catch (error) {
-		console.error('❌ Erro ao buscar estatísticas:', error);
+		console.error('Erro ao buscar estatísticas:', error);
 		
 		// Se falhar por CORS, usar estatísticas dos dados de fallback
 		if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-			console.log('🔄 Usando estatísticas de fallback');
+			console.log('Usando estatísticas de fallback');
 			const { obterEstatisticasFallback } = await import('./dadosFallback');
 			return obterEstatisticasFallback();
 		}
@@ -264,7 +264,7 @@ export async function buscarEstatisticas(): Promise<EstatisticasPessoas> {
 // Função para buscar pessoas por filtro
 export async function buscarPessoasPorFiltro(filtros: FiltroBusca): Promise<Pessoa[]> {
 	try {
-		console.log('🔍 Buscando pessoas por filtro:', filtros);
+		console.log('Buscando pessoas por filtro:', filtros);
 		
 		// Construir URL com parâmetros
 		const parametros = new URLSearchParams();
@@ -302,20 +302,20 @@ export async function buscarPessoasPorFiltro(filtros: FiltroBusca): Promise<Pess
 		
 		// A API retorna um objeto com 'content' que contém o array de pessoas
 		if (dados && dados.content && Array.isArray(dados.content)) {
-			console.log(`✅ Encontradas ${dados.content.length} pessoas com o filtro`);
+			console.log(`Encontradas ${dados.content.length} pessoas com o filtro`);
 			return dados.content;
 		}
 		
 		// Fallback para compatibilidade (caso a API mude)
 		if (Array.isArray(dados)) {
-			console.log(`✅ Encontradas ${dados.length} pessoas com o filtro`);
+			console.log(`Encontradas ${dados.length} pessoas com o filtro`);
 			return dados;
 		}
 		
 		throw new Error('API retornou dados em formato inesperado');
 		
 	} catch (error) {
-		console.error('❌ Erro ao buscar pessoas por filtro:', error);
+		console.error('Erro ao buscar pessoas por filtro:', error);
 		return [];
 	}
 }
@@ -324,7 +324,7 @@ export async function getPerson(id: string): Promise<Pessoa> {
 	try {
 		const url = `https://abitus-api.geia.vip/v1/pessoas/${id}`;
 		
-		console.log('🚀 Fazendo fetch para pessoa:', url);
+		console.log('Fazendo fetch para pessoa:', url);
 		
 		const response = await fetch(url, {
 			method: 'GET',

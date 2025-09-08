@@ -170,7 +170,6 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
         <div style={{ padding: '0 24px 24px 24px' }}>
           {isSuccess ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <div style={{ marginBottom: '16px', fontSize: '48px' }}>✅</div>
               <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#059669', marginBottom: '8px', margin: 0 }}>
                 Informação enviada com sucesso!
               </h3>

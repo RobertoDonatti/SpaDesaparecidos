@@ -172,7 +172,7 @@ function DetalhesPessoa() {
 							style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
 							<button 
 								onClick={() => {
-									const texto = `🎉 ÓTIMA NOTÍCIA! ${data.nome} foi ${statusTexto.toLowerCase()} e está bem! Obrigado a todos que ajudaram na divulgação. 🙏`;
+									const texto = `ÓTIMA NOTÍCIA! ${data.nome} foi ${statusTexto.toLowerCase()} e está bem! Obrigado a todos que ajudaram na divulgação.`;
 									const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
 									window.open(url, '_blank');
 								}}
@@ -190,30 +190,7 @@ function DetalhesPessoa() {
 									gap: 8
 								}}
 							>
-								📱 WhatsApp
-							</button>
-							
-							<button 
-								onClick={() => {
-									const texto = `🎉 ÓTIMA NOTÍCIA! ${data.nome} foi ${statusTexto.toLowerCase()} e está bem! Obrigado a todos que ajudaram na divulgação. 🙏 Link: ${window.location.href}`;
-									navigator.clipboard.writeText(texto);
-									alert('Texto copiado! Agora cole no Instagram.');
-								}}
-								style={{ 
-									background: '#e1306c', 
-									color: 'white',
-									border: 'none',
-									borderRadius: 8,
-									padding: '12px 20px',
-									fontSize: 14,
-									fontWeight: 'bold',
-									cursor: 'pointer',
-									display: 'flex',
-									alignItems: 'center',
-									gap: 8
-								}}
-							>
-								� Instagram
+								WhatsApp
 							</button>
 						</div>
 					</div>
@@ -237,7 +214,6 @@ function DetalhesPessoa() {
 							marginBottom: 24
 						}}
 					>
-						<span>📍</span>
 						VIU OU SABE DESSA PESSOA?
 					</button>
 				)}
@@ -257,7 +233,7 @@ function DetalhesPessoa() {
 						<div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
 							<button 
 								onClick={() => {
-									const texto = `🚨 PESSOA DESAPARECIDA: ${data.nome}, ${data.idade} anos. Desapareceu em ${data.ultimaOcorrencia.localDesaparecimentoConcat}. Se tiver informações, denuncie!`;
+									const texto = `PESSOA DESAPARECIDA: ${data.nome}, ${data.idade} anos. Desapareceu em ${data.ultimaOcorrencia.localDesaparecimentoConcat}. Se tiver informações, denuncie!`;
 									const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
 									window.open(url, '_blank');
 								}}
@@ -274,29 +250,7 @@ function DetalhesPessoa() {
 									gap: 8
 								}}
 							>
-								📱 COMPARTILHE PELO WHATSAPP
-							</button>
-							
-							<button 
-								onClick={() => {
-									const texto = `🚨 PESSOA DESAPARECIDA: ${data.nome}, ${data.idade} anos. Desapareceu em ${data.ultimaOcorrencia.localDesaparecimentoConcat}. Link: ${window.location.href}`;
-									navigator.clipboard.writeText(texto);
-									alert('Texto copiado! Agora cole no Instagram.');
-								}}
-								style={{ 
-									background: '#e1306c', 
-									color: 'white',
-									border: 'none',
-									borderRadius: 6,
-									padding: '8px 16px',
-									fontSize: 14,
-									cursor: 'pointer',
-									display: 'flex',
-									alignItems: 'center',
-									gap: 8
-								}}
-							>
-								📸 COMPARTILHE NO INSTAGRAM
+								COMPARTILHE PELO WHATSAPP
 							</button>
 						</div>
 					</div>

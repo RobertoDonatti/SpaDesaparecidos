@@ -10,6 +10,12 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -49,6 +55,8 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
+  min-width: 100%;
 }
 
 .header-content {
@@ -59,6 +67,8 @@ body {
   align-items: center;
   justify-content: space-between;
   height: 80px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-logo {
@@ -68,6 +78,9 @@ body {
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+  min-width: 0; /* Permite que o item flex encolha */
+  flex: 1; /* Permite que o logo use o espaço disponível */
+  max-width: 100%; /* Garante que não ultrapasse a largura */
 }
 
 .header-logo-icon {
@@ -91,6 +104,8 @@ body {
 
 .header-logo-text {
   color: white;
+  min-width: 0; /* Permite que o texto seja truncado se necessário */
+  flex: 1;
 }
 
 .header-title {
@@ -98,6 +113,9 @@ body {
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-subtitle {
@@ -144,16 +162,17 @@ body {
 }
 
 .footer-content {
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 40px 20px 20px;
 }
 
 .footer-main {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 32px;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
   margin-bottom: 32px;
+  max-width: 900px;
 }
 
 .footer-section {
@@ -515,10 +534,15 @@ body {
   .header-content {
     height: 70px;
     padding: 0 16px;
+    width: 100%;
+    min-width: 100%;
   }
   
   .header-title {
     font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .header-subtitle {
@@ -544,7 +568,8 @@ body {
   
   .footer-main {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 24px;
+    max-width: 100%;
   }
   
   .footer-bottom {
@@ -558,16 +583,28 @@ body {
   .header-content {
     height: 60px;
     padding: 0 12px;
+    width: 100%;
+    min-width: 100%;
   }
   
   .header-title {
     font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100vw - 120px); /* Deixa espaço para o ícone */
+  }
+  
+  .header-logo {
+    flex: 1;
+    min-width: 0; /* Permite que o flex item encolha */
   }
   
   .header-logo-icon {
     width: 36px;
     height: 36px;
     font-size: 18px;
+    flex-shrink: 0; /* Não deixa o ícone encolher */
   }
   
   .main-content {
@@ -718,22 +755,74 @@ body {
    PÁGINA HOME - RESPONSIVIDADE
    ========================================== */
 
+/* Mobile e Tablet - Layout vertical */
+@media (max-width: 1024px) {
+  .hero-container {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+  
+  .hero-busca {
+    width: 100% !important;
+    max-width: 600px !important;
+  }
+  
+  .hero-estatisticas {
+    flex-direction: row !important;
+    gap: 24px !important;
+    justify-content: center !important;
+  }
+}
+
 /* Desktop - Hero Section lado a lado */
 @media (min-width: 1025px) {
   .hero-container {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 60px !important;
+    gap: 8px !important;
   }
   
   .hero-busca {
     flex: 1 !important;
-    max-width: 500px !important;
+    max-width: 600px !important;
   }
   
   .hero-estatisticas {
     flex: 0 0 auto !important;
-    min-width: 400px !important;
+    flex-direction: row !important;
+    gap: 24px !important;
+  }
+}
+
+/* ==========================================
+   GRID DE CARDS - 3x4 LAYOUT (12 cards por página)
+   ========================================== */
+
+.cards-grid {
+  display: grid;
+  gap: 16px;
+  max-width: 1360px;
+  margin: 0 auto;
+  justify-content: center;
+  
+  /* Mobile: 1 coluna */
+  grid-template-columns: 1fr;
+}
+
+/* Tablet: 2 colunas */
+@media (min-width: 768px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(280px, 320px));
+  }
+}
+
+/* Desktop: 4 colunas fixas para layout 3x4 (12 cards) */
+@media (min-width: 1025px) {
+  .cards-grid {
+    grid-template-columns: repeat(4, 320px);
+    max-width: 1360px;
+    justify-content: center;
   }
 }

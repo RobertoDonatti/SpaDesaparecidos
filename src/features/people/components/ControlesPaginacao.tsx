@@ -72,12 +72,6 @@ export function ControlesPaginacao({
 		cursor: 'not-allowed'
 	};
 	
-	const estiloTextoInfo: React.CSSProperties = {
-		fontSize: '14px',
-		color: '#6b7280',
-		marginLeft: '16px'
-	};
-	
 	return (
 		<div style={estiloContainer}>
 			{/* Botão primeira página */}
@@ -144,11 +138,6 @@ export function ControlesPaginacao({
 			>
 				»
 			</button>
-			
-			{/* Informações sobre registros */}
-			<div style={estiloTextoInfo}>
-				Página {paginaAtual} de {totalPaginas} • {totalRegistros} registros
-			</div>
 		</div>
 	);
 }

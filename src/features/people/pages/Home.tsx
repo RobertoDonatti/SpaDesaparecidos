@@ -85,7 +85,7 @@ function Home() {
         (window as any).forcarAtualizacao = () => {
             limparCacheGlobal();
             recarregarDados();
-            devLog('🔄 Cache limpo e dados recarregados!');
+            devLog('Cache limpo e dados recarregados!');
         };
 
         // Log para depuração (apenas em desenvolvimento)
@@ -160,7 +160,6 @@ function Home() {
 
     return (
         <div>
-            {/* Hero Section responsivo */}
             <div style={{
                 minHeight: '300px',
                 display: 'flex',
@@ -174,20 +173,20 @@ function Home() {
                     className="hero-container"
                     style={{
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: 'row',
                         alignItems: 'center',
-                        gap: '40px',
+                        gap: '8px',
                         maxWidth: '1200px',
                         width: '100%',
-                        justifyContent: 'center'
+                        justifyContent: 'space-between'
                     }}
                 >
                     {/* Formulário de Busca */}
                     <div 
                         className="hero-busca"
                         style={{
-                            width: '100%',
-                            maxWidth: '600px'
+                            flex: '1',
+                            maxWidth: '400px'
                         }}
                     >
                         <FormularioBuscaSimples onBuscar={handleBuscar} />
@@ -198,15 +197,15 @@ function Home() {
                         className="hero-estatisticas"
                         style={{
                             display: 'flex',
-                            gap: '40px',
+                            flexDirection: 'row',
+                            gap: '24px',
                             alignItems: 'center',
-                            flexWrap: 'wrap',
-                            justifyContent: 'center'
+                            height: 'fit-content'
                         }}
                     >
                         <div style={{
                             textAlign: 'center',
-                            minWidth: '150px'
+                            minWidth: '140px'
                         }}>
                             <div style={{
                                 fontSize: '12px',
@@ -218,7 +217,7 @@ function Home() {
                                 PESSOAS LOCALIZADAS
                             </div>
                             <div style={{
-                                fontSize: '36px',
+                                fontSize: '48px',
                                 fontWeight: '700',
                                 lineHeight: '1',
                                 color: '#16a34a'
@@ -229,7 +228,7 @@ function Home() {
 
                         <div style={{
                             textAlign: 'center',
-                            minWidth: '150px'
+                            minWidth: '140px'
                         }}>
                             <div style={{
                                 fontSize: '12px',
@@ -241,7 +240,7 @@ function Home() {
                                 PESSOAS DESAPARECIDAS
                             </div>
                             <div style={{
-                                fontSize: '36px',
+                                fontSize: '48px',
                                 fontWeight: '700',
                                 lineHeight: '1',
                                 color: '#dc2626'
@@ -269,7 +268,7 @@ function Home() {
                                 fontWeight: 600,
                                 margin: 0
                             }}>
-                                📋 Resultados da Busca
+                                Resultados da Busca
                             </h2>
                             <button
                                 onClick={voltarParaListagem}
@@ -302,14 +301,7 @@ function Home() {
                                 <p>{(erroBusca as Error).message}</p>
                             </div>
                         ) : resultadosBusca && resultadosBusca.length > 0 ? (
-                            <div style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 320px))',
-                                gap: 16, 
-                                maxWidth: 1360,
-                                margin: '0 auto',
-                                justifyContent: 'center'
-                            }}>
+                            <div className="cards-grid">
                                 {resultadosBusca.map((pessoa: Pessoa) => (
                                     <CardPessoa key={pessoa.id} {...pessoa} />
                                 ))}
@@ -358,14 +350,7 @@ function Home() {
 
                         {/* Grid de pessoas - responsivo */}
                         {pessoas.length > 0 ? (
-                            <div style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 320px))',
-                                gap: 16, 
-                                maxWidth: 1360,
-                                margin: '0 auto',
-                                justifyContent: 'center'
-                            }}>
+                            <div className="cards-grid">
                                 {pessoas.map((pessoa: Pessoa) => (
                                     <CardPessoa key={pessoa.id} {...pessoa} />
                                 ))}
@@ -381,9 +366,6 @@ function Home() {
                                 margin: '0 auto',
                                 maxWidth: '600px'
                             }}>
-                                <div style={{ fontSize: '48px', marginBottom: '20px' }}>
-                                    {statusAtivo === 'DESAPARECIDO' }
-                                </div>
                                 <h3 style={{ marginBottom: '12px', fontSize: '20px', fontWeight: '600' }}>
                                     {statusAtivo === 'DESAPARECIDO' 
                                         ? 'Nenhuma pessoa desaparecida encontrada'
@@ -423,7 +405,7 @@ function Home() {
                                 borderRadius: '8px',
                                 margin: '20px 0'
                             }}>
-                                🔍 Debug: Total de registros = {totalRegistros} | Total de páginas = {totalPaginas}
+                                Debug: Total de registros = {totalRegistros} | Total de páginas = {totalPaginas}
                                 <br />
                                 {pessoas.length > 0 ? 
                                     `Mostrando ${pessoas.length} pessoas mas sem paginação` : 

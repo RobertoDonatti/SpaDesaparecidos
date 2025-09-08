@@ -33,10 +33,11 @@ export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps
 
     return (
         <div style={estiloFormulario}>
-            <h2 style={estiloTitulo}>🔍 Buscar Pessoa Desaparecida</h2>
+            <h2 style={estiloTitulo}>Buscar Pessoa Desaparecida</h2>
             
             <form onSubmit={handleSubmit} style={estiloForm}>
-                <div style={estiloGrid}>
+                {/* Primeira linha: Nome e Sexo */}
+                <div style={estiloLinhaSuperior}>
                     {/* Campo Nome */}
                     <div style={estiloCampo}>
                         <label style={estiloLabel}>Nome</label>
@@ -62,7 +63,10 @@ export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps
                             <option value="F">Feminino</option>
                         </select>
                     </div>
+                </div>
 
+                {/* Segunda linha: Idades */}
+                <div style={estiloLinhaIdades}>
                     {/* Campo Idade Mínima */}
                     <div style={estiloCampo}>
                         <label style={estiloLabel}>Idade Mínima</label>
@@ -98,7 +102,7 @@ export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps
                         type="submit"
                         style={estiloBotaoPrimario}
                     >
-                        🔍 Buscar
+                        Buscar
                     </button>
                     
                     <button
@@ -106,7 +110,7 @@ export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps
                         onClick={handleLimpar}
                         style={estiloBotaoSecundario}
                     >
-                        🗑️ Limpar
+                        Limpar
                     </button>
                 </div>
             </form>
@@ -126,7 +130,7 @@ const estiloFormulario: React.CSSProperties = {
 };
 
 const estiloTitulo: React.CSSProperties = {
-    margin: '0 0 20px 0',
+    margin: '0 0 16px 0',
     fontSize: '20px',
     fontWeight: '600',
     color: '#1f2937'
@@ -136,9 +140,16 @@ const estiloForm: React.CSSProperties = {
     width: '100%'
 };
 
-const estiloGrid: React.CSSProperties = {
+const estiloLinhaSuperior: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '12px',
+    marginBottom: '12px'
+};
+
+const estiloLinhaIdades: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
     gap: '12px',
     marginBottom: '20px'
 };
@@ -156,7 +167,7 @@ const estiloLabel: React.CSSProperties = {
 };
 
 const estiloInput: React.CSSProperties = {
-    padding: '8px 10px',
+    padding: '8px 12px',
     borderWidth: '1px',
     borderStyle: 'solid',
     borderColor: '#d1d5db',
@@ -168,7 +179,7 @@ const estiloInput: React.CSSProperties = {
 
 const estiloBotoes: React.CSSProperties = {
     display: 'flex',
-    gap: '8px',
+    gap: '6px',
     justifyContent: 'flex-start',
     flexWrap: 'wrap'
 };

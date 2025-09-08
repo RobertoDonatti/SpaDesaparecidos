@@ -34,7 +34,7 @@ export function DashboardEstatisticas() {
 			<div style={estiloContainer}>
 				<div style={{...estiloCard, borderColor: '#ef4444'}}>
 					<p style={{color: '#ef4444', margin: 0}}>
-						❌ Erro ao carregar estatísticas
+						Erro ao carregar estatísticas
 					</p>
 				</div>
 			</div>
@@ -48,9 +48,6 @@ export function DashboardEstatisticas() {
 		<div style={estiloContainer}>
 			{/* Card Desaparecidas */}
 			<div style={{...estiloCard, borderLeftColor: '#dc2626'}}>
-				<div style={estiloIcone}>
-					<span style={{fontSize: '24px'}}>🔍</span>
-				</div>
 				<div style={estiloConteudo}>
 					<h3 style={estiloTitulo}>Pessoas Desaparecidas</h3>
 					<p style={{...estiloNumero, color: '#dc2626'}}>
@@ -62,9 +59,6 @@ export function DashboardEstatisticas() {
 
 			{/* Card Encontradas */}
 			<div style={{...estiloCard, borderLeftColor: '#16a34a'}}>
-				<div style={estiloIcone}>
-					<span style={{fontSize: '24px'}}>✅</span>
-				</div>
 				<div style={estiloConteudo}>
 					<h3 style={estiloTitulo}>Pessoas Localizadas</h3>
 					<p style={{...estiloNumero, color: '#16a34a'}}>
@@ -99,16 +93,6 @@ const estiloCard: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	gap: '16px'
-};
-
-const estiloIcone: React.CSSProperties = {
-	width: '48px',
-	height: '48px',
-	backgroundColor: '#f9fafb',
-	borderRadius: '8px',
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center'
 };
 
 const estiloConteudo: React.CSSProperties = {

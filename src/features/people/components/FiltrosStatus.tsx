@@ -3,38 +3,37 @@ import React from 'react';
 interface FiltrosStatusProps {
 	statusAtivo: 'DESAPARECIDO' | 'LOCALIZADO';
 	aoAlterarStatus: (status: 'DESAPARECIDO' | 'LOCALIZADO') => void;
-	quantidadeDesaparecidos?: number;
-	quantidadeLocalizados?: number;
 }
 
 export function FiltrosStatus({ 
 	statusAtivo, 
-	aoAlterarStatus, 
-	quantidadeDesaparecidos = 0,
-	quantidadeLocalizados = 0 
+	aoAlterarStatus
 }: FiltrosStatusProps) {
 	const estiloContainer: React.CSSProperties = {
 		display: 'flex',
-		gap: '16px',
+		gap: '12px',
 		marginBottom: '24px',
 		justifyContent: 'center',
-		flexWrap: 'wrap'
+		flexWrap: 'wrap',
+		padding: '0 20px'
 	};
 
 	const estiloBaseButton: React.CSSProperties = {
-		padding: '12px 24px',
+		padding: '10px 20px',
 		border: '2px solid',
 		borderRadius: '8px',
 		backgroundColor: 'white',
 		cursor: 'pointer',
-		fontSize: '16px',
+		fontSize: '14px',
 		fontWeight: '600',
 		transition: 'all 0.3s ease',
 		display: 'flex',
 		alignItems: 'center',
-		gap: '8px',
-		minWidth: '180px',
-		justifyContent: 'center'
+		justifyContent: 'center',
+		minWidth: '150px',
+		textAlign: 'center',
+		flex: '1',
+		maxWidth: '250px'
 	};
 
 	const estiloAtivo: React.CSSProperties = {
@@ -58,37 +57,20 @@ export function FiltrosStatus({
 		...(statusAtivo === 'LOCALIZADO' ? estiloAtivo : {})
 	};
 
-	const estiloBadge: React.CSSProperties = {
-		fontSize: '12px',
-		backgroundColor: 'currentColor',
-		color: 'white',
-		borderRadius: '10px',
-		padding: '2px 8px',
-		marginLeft: '4px'
-	};
-
 	return (
 		<div style={estiloContainer}>
 			<button 
 				style={estiloDesaparecidos}
 				onClick={() => aoAlterarStatus('DESAPARECIDO')}
 			>
-				<span>🔍</span>
 				Pessoas Desaparecidas
-				<span style={estiloBadge}>
-					{quantidadeDesaparecidos}
-				</span>
 			</button>
 
 			<button 
 				style={estiloLocalizados}
 				onClick={() => aoAlterarStatus('LOCALIZADO')}
 			>
-				<span>✅</span>
 				Pessoas Localizadas
-				<span style={estiloBadge}>
-					{quantidadeLocalizados}
-				</span>
 			</button>
 		</div>
 	);

@@ -287,8 +287,9 @@ const estiloTituloResultados: React.CSSProperties = {
 
 const estiloGridResultados: React.CSSProperties = {
 	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-	gap: '16px'
+	gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 280px))',
+	gap: '16px',
+	justifyContent: 'start'
 };
 
 const estiloSemResultados: React.CSSProperties = {

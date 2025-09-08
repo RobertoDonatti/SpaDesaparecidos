@@ -38,18 +38,20 @@ export function LoadingSkeleton() {
 					backgroundColor: '#e5e7eb',
 					borderRadius: '4px',
 					margin: '0 auto 20px',
-					maxWidth: '300px'
+					maxWidth: '300px',
+					animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 				}} />
 				<div style={{
 					height: '14px',
 					backgroundColor: '#f3f4f6',
 					borderRadius: '4px',
 					margin: '0 auto',
-					maxWidth: '200px'
+					maxWidth: '200px',
+					animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 				}} />
 			</div>
 			
-			{/* Grid skeleton */}
+			{/* Grid skeleton - 12 cards como no original */}
 			<div style={estiloContainer}>
 				{Array.from({ length: 12 }).map((_, index) => (
 					<div key={index} style={estiloSkeleton}>
@@ -58,18 +60,30 @@ export function LoadingSkeleton() {
 							height: '60px',
 							backgroundColor: '#e5e7eb',
 							borderRadius: '4px',
-							marginBottom: '12px'
+							marginBottom: '12px',
+							animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 						}} />
 						
 						{/* Textos skeleton */}
-						<div style={estiloTextoSkeleton} />
 						<div style={{
 							...estiloTextoSkeleton,
-							width: '80%'
+							animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 						}} />
 						<div style={{
 							...estiloTextoSkeleton,
-							width: '60%'
+							width: '80%',
+							animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+						}} />
+						<div style={{
+							...estiloTextoSkeleton,
+							width: '60%',
+							animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+						}} />
+						<div style={{
+							...estiloTextoSkeleton,
+							width: '60%',
+							marginBottom: 0,
+							animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 						}} />
 					</div>
 				))}

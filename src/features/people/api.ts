@@ -300,12 +300,19 @@ export async function buscarPessoasPorFiltro(filtros: FiltroBusca): Promise<Pess
 		
 		const dados = await response.json();
 		
-		if (!Array.isArray(dados)) {
-			throw new Error('API retornou dados em formato inesperado');
+		// A API retorna um objeto com 'content' que contém o array de pessoas
+		if (dados && dados.content && Array.isArray(dados.content)) {
+			console.log(`✅ Encontradas ${dados.content.length} pessoas com o filtro`);
+			return dados.content;
 		}
 		
-		console.log(`✅ Encontradas ${dados.length} pessoas com o filtro`);
-		return dados;
+		// Fallback para compatibilidade (caso a API mude)
+		if (Array.isArray(dados)) {
+			console.log(`✅ Encontradas ${dados.length} pessoas com o filtro`);
+			return dados;
+		}
+		
+		throw new Error('API retornou dados em formato inesperado');
 		
 	} catch (error) {
 		console.error('❌ Erro ao buscar pessoas por filtro:', error);

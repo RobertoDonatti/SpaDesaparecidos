@@ -65,6 +65,9 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .header-logo-icon {
@@ -78,6 +81,12 @@ body {
   font-size: 24px;
   color: white;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header-logo-icon:hover {
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
 .header-logo-text {
@@ -490,6 +499,18 @@ body {
   }
 }
 
+/* ==========================================
+   MEDIA QUERIES - RESPONSIVIDADE
+   ========================================== */
+
+/* Tablets e dispositivos médios */
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 0 16px;
+  }
+}
+
+/* Mobile e dispositivos pequenos */
 @media (max-width: 768px) {
   .header-content {
     height: 70px;
@@ -497,37 +518,222 @@ body {
   }
   
   .header-title {
-    font-size: 20px;
+    font-size: 18px;
   }
   
   .header-subtitle {
-    font-size: 12px;
+    font-size: 11px;
   }
   
   .header-nav {
-    gap: 16px;
+    gap: 12px;
   }
   
   .header-nav-link {
-    font-size: 14px;
+    font-size: 13px;
     padding: 6px 12px;
   }
   
   .main-content {
-    padding: 0 16px;
+    padding: 0 12px;
   }
   
   .footer-content {
-    padding: 32px 16px 16px;
+    padding: 24px 12px 16px;
   }
   
   .footer-main {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 20px;
   }
   
   .footer-bottom {
     flex-direction: column;
     text-align: center;
+  }
+}
+
+/* Mobile muito pequeno */
+@media (max-width: 480px) {
+  .header-content {
+    height: 60px;
+    padding: 0 12px;
+  }
+  
+  .header-title {
+    font-size: 16px;
+  }
+  
+  .header-logo-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .main-content {
+    padding: 0 8px;
+  }
+}
+
+/* ==========================================
+   PÁGINA DE DETALHES - RESPONSIVIDADE
+   ========================================== */
+
+/* Base responsiva para mobile-first */
+.detalhes-container-responsivo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.detalhes-foto-responsiva {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.detalhes-foto-responsiva img {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: cover;
+  display: block;
+}
+
+.detalhes-info-responsiva {
+  width: 100%;
+  padding: 0 10px;
+}
+
+.detalhes-titulo-responsivo {
+  font-size: clamp(24px, 5vw, 32px);
+  font-weight: bold;
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+  color: #1f2937;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.detalhes-idade-responsiva {
+  font-size: clamp(16px, 3vw, 18px);
+  color: #6b7280;
+  margin: 0 0 32px 0;
+  text-align: center;
+}
+
+.detalhes-alerta-responsiva {
+  text-align: center;
+}
+
+.detalhes-botoes-responsivos {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.detalhes-botao-principal-responsivo {
+  width: 100%;
+  justify-content: center;
+  margin: 0 0 20px 0;
+}
+
+.detalhes-status-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: white;
+}
+
+/* Desktop - a partir de 1025px */
+@media (min-width: 1025px) {
+  .detalhes-container-responsivo {
+    flex-direction: row;
+    gap: 40px;
+    align-items: flex-start;
+    padding: 40px 20px;
+  }
+  
+  .detalhes-foto-responsiva {
+    flex: 0 0 400px;
+    margin: 0;
+    max-width: 400px;
+    min-width: 400px;
+  }
+  
+  .detalhes-foto-responsiva img {
+    height: auto;
+    max-height: none;
+    min-height: 500px;
+  }
+  
+  .detalhes-info-responsiva {
+    flex: 1;
+    padding: 0;
+    min-width: 0;
+  }
+  
+  .detalhes-status-badge {
+    text-align: center;
+  }
+  
+  .detalhes-titulo-responsivo {
+    text-align: left;
+    font-size: 32px;
+  }
+  
+  .detalhes-idade-responsiva {
+    text-align: left;
+    font-size: 18px;
+  }
+  
+  .detalhes-alerta-responsiva {
+    text-align: left;
+  }
+  
+  .detalhes-botoes-responsivos {
+    justify-content: flex-start;
+  }
+  
+  .detalhes-botao-principal-responsivo {
+    width: auto;
+    margin: 0 0 20px 0;
+    padding: 16px 32px;
+    font-size: 16px;
+  }
+}
+
+/* ==========================================
+   PÁGINA HOME - RESPONSIVIDADE
+   ========================================== */
+
+/* Desktop - Hero Section lado a lado */
+@media (min-width: 1025px) {
+  .hero-container {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 60px !important;
+  }
+  
+  .hero-busca {
+    flex: 1 !important;
+    max-width: 500px !important;
+  }
+  
+  .hero-estatisticas {
+    flex: 0 0 auto !important;
+    min-width: 400px !important;
   }
 }

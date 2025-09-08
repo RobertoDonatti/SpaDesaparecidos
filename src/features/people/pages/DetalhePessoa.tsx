@@ -4,7 +4,7 @@ import { getPerson } from '../api'
 import Loading from '../../../components/Loading'
 import EmptyState from '../../../components/EmptyState'
 import { useState } from 'react'
-import EnviarInformacaoForm from '../components/EnviarInformacaoForm'
+import FormularioDetalhePessoa from '../components/FormularioDetalhePessoa'
 import { formatDateBR, sinceBR } from '../../../utils/date'
 
 function DetalhesPessoa() {
@@ -45,31 +45,18 @@ function DetalhesPessoa() {
 			: `DESAPARECIDA HÁ ${tempoDesaparecido.toUpperCase()}!`);
 	
 	return (
-		<div style={{ 
-			maxWidth: 1200, 
-			margin: '0 auto', 
-			padding: 20,
-			display: 'flex',
-			gap: 40,
-			alignItems: 'flex-start'
-		}}>
+		<div 
+			className="detalhes-container-responsivo"
+		>
 			{/* Coluna da Foto */}
-			<div style={{ 
-				flex: '0 0 400px',
-				border: '3px solid #ef4444',
-				borderRadius: 12,
-				overflow: 'hidden',
-				background: '#fff'
+			<div 
+				className="detalhes-foto-responsiva"
+				style={{ 
+				border: `3px solid ${statusColor}`
 			}}>
 				<img 
 					src={data.urlFoto} 
 					alt={data.nome}
-					style={{ 
-						width: '100%', 
-						height: '500px', 
-						objectFit: 'cover',
-						display: 'block'
-					}}
 					onError={(e) => {
 						(e.currentTarget as HTMLImageElement).src = "https://placehold.co/400x500?text=Sem+foto"
 					}}
@@ -77,42 +64,32 @@ function DetalhesPessoa() {
 			</div>
 
 			{/* Coluna das Informações */}
-			<div style={{ flex: 1 }}>
+						{/* Coluna das Informações */}
+			<div 
+				className="detalhes-info-responsiva"
+			>
 				{/* Status Badge */}
-				<div style={{ 
-					background: statusColor, 
-					color: 'white', 
-					padding: '8px 16px',
-					borderRadius: 6,
-					fontWeight: 'bold',
-					fontSize: 14,
-					display: 'inline-block',
-					marginBottom: 16
+				<div 
+					className="detalhes-status-badge"
+					style={{ 
+					background: statusColor
 				}}>
 					{statusTexto}
 				</div>
 
 				{/* Nome */}
-				<h1 style={{ 
-					fontSize: 32, 
-					fontWeight: 'bold', 
-					textTransform: 'uppercase',
-					margin: '0 0 8px 0',
-					color: '#1f2937'
-				}}>
+				<h1 
+					className="detalhes-titulo-responsivo"
+				>
 					{data.nome}
 				</h1>
 
 				{/* Idade e Sexo */}
-				<p style={{ 
-					fontSize: 18, 
-					color: '#6b7280', 
-					margin: '0 0 32px 0' 
-				}}>
+				<p 
+					className="detalhes-idade-responsiva"
+				>
 					{data.idade} anos - {sexoFormatado}
-				</p>
-
-				{/* Dados condicionais baseados no status */}
+				</p>				{/* Dados condicionais baseados no status */}
 				{foiLocalizada ? (
 					// Seção para pessoas localizadas
 					<div style={{ marginBottom: 32 }}>
@@ -158,7 +135,9 @@ function DetalhesPessoa() {
 				)}
 
 				{/* Alerta de Status */}
-				<div style={{ 
+				<div 
+					className="detalhes-alerta-responsiva"
+					style={{ 
 					background: foiLocalizada ? '#f0fdf4' : '#fef2f2', 
 					border: foiLocalizada ? '1px solid #bbf7d0' : '1px solid #fecaca',
 					borderRadius: 8,
@@ -188,7 +167,9 @@ function DetalhesPessoa() {
 							Compartilhar a boa notícia
 						</h3>
 						
-						<div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+						<div 
+							className="detalhes-botoes-responsivos"
+							style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
 							<button 
 								onClick={() => {
 									const texto = `🎉 ÓTIMA NOTÍCIA! ${data.nome} foi ${statusTexto.toLowerCase()} e está bem! Obrigado a todos que ajudaram na divulgação. 🙏`;
@@ -239,6 +220,7 @@ function DetalhesPessoa() {
 				) : (
 					// Botão de informação para pessoas desaparecidas
 					<button 
+						className="detalhes-botao-principal-responsivo"
 						onClick={() => setShowForm(!showForm)}
 						style={{ 
 							background: '#ef4444', 
@@ -329,7 +311,13 @@ function DetalhesPessoa() {
 						borderRadius: 8,
 						border: '1px solid #e5e7eb'
 					}}>
-						<EnviarInformacaoForm personId={id!} onSubmitted={() => setShowForm(false)} />
+						<FormularioDetalhePessoa 
+							onSubmit={(data) => {
+								console.log('Dados do formulário:', data);
+								setShowForm(false);
+							}}
+							onCancel={() => setShowForm(false)}
+						/>
 					</div>
 				)}
 

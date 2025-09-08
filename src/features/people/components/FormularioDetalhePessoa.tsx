@@ -1,6 +1,7 @@
 //componente criado para substituir o formulário de informações do botão "Enviar Informação" na página de detalhes da pessoa
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { CheckCircle } from 'lucide-react';
 
 interface FormularioDetalhePessoaProps {
   onSubmit: (data: FormData) => void;
@@ -27,6 +28,7 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
   
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSuccess, setIsSuccess] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -57,6 +59,7 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
+      setApiError(null); // Limpar erro anterior
       try {
         await onSubmit(formData);
         setIsSuccess(true);
@@ -68,13 +71,14 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
           arquivo: undefined
         });
         
-        // Fechar automaticamente após 2 segundos
+        // Fechar automaticamente após 3 segundos
         setTimeout(() => {
           setIsSuccess(false);
           onCancel();
         }, 3000);
       } catch (error) {
         console.error('Erro no envio:', error);
+        setApiError('Erro ao enviar informação. Tente novamente.');
       }
     }
   };
@@ -170,6 +174,21 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
         <div style={{ padding: '0 24px 24px 24px' }}>
           {isSuccess ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                marginBottom: '16px' 
+              }}>
+                <CheckCircle 
+                  size={48} 
+                  color="#059669"
+                  style={{ 
+                    backgroundColor: '#f0fdf4',
+                    borderRadius: '50%',
+                    padding: '8px'
+                  }}
+                />
+              </div>
               <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#059669', marginBottom: '8px', margin: 0 }}>
                 Informação enviada com sucesso!
               </h3>
@@ -178,7 +197,28 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <>
+              {/* Erro da API */}
+              {apiError && (
+                <div style={{ 
+                  background: '#fef2f2', 
+                  border: '1px solid #fecaca',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '20px'
+                }}>
+                  <p style={{ 
+                    color: '#dc2626', 
+                    fontSize: '14px', 
+                    margin: 0,
+                    fontWeight: '500'
+                  }}>
+                    {apiError}
+                  </p>
+                </div>
+              )}
+              
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* Campo Informação */}
         <div>
@@ -342,7 +382,8 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
           </button>
         </div>
       </form>
-      )}
+            </>
+          )}
         </div>
       </div>
     </div>,

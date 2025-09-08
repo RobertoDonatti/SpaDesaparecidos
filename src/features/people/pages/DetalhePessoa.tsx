@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { getPerson } from '../api'
+import { getPerson, enviarInformacoes } from '../api'
 import Loading from '../../../components/Loading'
 import EmptyState from '../../../components/EmptyState'
 import { useState } from 'react'
@@ -9,6 +9,7 @@ import { formatDateBR, sinceBR } from '../../../utils/date'
 
 function DetalhesPessoa() {
 	const [showForm, setShowForm] = useState(false)
+	const [isSubmitting, setIsSubmitting] = useState(false)
 	const { id } = useParams<{ id: string }>()
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['person', id],
@@ -266,11 +267,26 @@ function DetalhesPessoa() {
 						border: '1px solid #e5e7eb'
 					}}>
 						<FormularioDetalhePessoa 
-							onSubmit={(data) => {
+							onSubmit={async (data) => {
 								console.log('Dados do formulário:', data);
-								setShowForm(false);
+								setIsSubmitting(true);
+								
+								try {
+									// TEMPORÁRIO: mockup para simular o funcionamento
+									// a API esta esperando autenticação e não possuo acesso, por isso o mock  
+									await new Promise(resolve => setTimeout(resolve, 2000));
+									console.log('Informação enviada com sucesso (simulado)!');
+									
+									
+								} catch (error) {
+									console.error('Erro ao enviar informação:', error);
+									throw error; // Re-throw para que o formulário trate o erro
+								} finally {
+									setIsSubmitting(false);
+								}
 							}}
 							onCancel={() => setShowForm(false)}
+							isLoading={isSubmitting}
 						/>
 					</div>
 				)}

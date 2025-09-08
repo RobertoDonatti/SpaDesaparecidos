@@ -4,16 +4,41 @@ import { FormularioBuscaSimples } from "../components/FormularioBuscaSimples";
 import { FiltrosStatus } from "../components/FiltrosStatus";
 import CardPessoa from "../components/CardPessoa";
 import { LoadingSkeleton } from "../../../components/LoadingSkeleton";
+import Modal from "../../../components/Modal";
 import { limparCacheGlobal, verificarStatusCache, buscarPessoasPorFiltro } from "../api";
 import { useQuery } from '@tanstack/react-query';
 import { buscarEstatisticas } from '../api';
 import type { Pessoa, FiltroBusca } from "../types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { devLog, devError } from "../../../utils/devLogger";
 
 function Home() {
     const [modoBusca, setModoBusca] = useState(false);
     const [filtrosBusca, setFiltrosBusca] = useState<FiltroBusca | null>(null);
+    const [paginaBusca, setPaginaBusca] = useState(1);
+    const [modalNenhumResultado, setModalNenhumResultado] = useState(false);
+    const location = useLocation();
+    
+    const registrosPorPaginaBusca = 12; // Mesmo padrão da listagem normal
+
+    // Detectar navegação para /home e resetar busca se necessário
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const shouldReset = searchParams.get('reset');
+        
+        // Se o parâmetro reset estiver presente, limpar a busca
+        if (shouldReset === 'true') {
+            setModoBusca(false);
+            setFiltrosBusca(null);
+            setPaginaBusca(1);
+            
+            // Limpar o parâmetro reset da URL para não ficar visível
+            if (location.search.includes('reset=true')) {
+                window.history.replaceState({}, '', '/home');
+            }
+        }
+    }, [location]);
 
     const {
         // Dados
@@ -56,26 +81,87 @@ function Home() {
         staleTime: 1000 * 60 * 5, // 5 minutos
     });
 
-    // Query para busca personalizada
+    // Query para busca personalizada com paginação
     const { 
-        data: resultadosBusca, 
+        data: dadosBuscaCompletos, 
         isLoading: carregandoBusca, 
         error: erroBusca 
     } = useQuery({
-        queryKey: ['busca-pessoas', filtrosBusca],
-        queryFn: () => buscarPessoasPorFiltro(filtrosBusca!),
+        queryKey: ['busca-pessoas', filtrosBusca, paginaBusca, statusAtivo],
+        queryFn: async () => {
+            const todoResultados = await buscarPessoasPorFiltro(filtrosBusca!, statusAtivo as 'DESAPARECIDO' | 'LOCALIZADO');
+            
+            // Aplicar paginação local
+            const inicio = (paginaBusca - 1) * registrosPorPaginaBusca;
+            const fim = inicio + registrosPorPaginaBusca;
+            const resultadosPaginados = todoResultados.slice(inicio, fim);
+            
+            return {
+                resultados: resultadosPaginados,
+                total: todoResultados.length,
+                totalPaginas: Math.ceil(todoResultados.length / registrosPorPaginaBusca),
+                paginaAtual: paginaBusca,
+                statusUtilizado: statusAtivo
+            };
+        },
         enabled: modoBusca && !!filtrosBusca,
         staleTime: 1000 * 60 * 2
     });
 
+    // Extrair dados para facilitar o uso
+    const resultadosBusca = dadosBuscaCompletos?.resultados || [];
+    const totalResultadosBusca = dadosBuscaCompletos?.total || 0;
+    const totalPaginasBusca = dadosBuscaCompletos?.totalPaginas || 0;
+
+    // Resetar página de busca quando o status muda
+    useEffect(() => {
+        if (modoBusca) {
+            setPaginaBusca(1);
+        }
+    }, [statusAtivo, modoBusca]);
+
+    // Detectar quando não há resultados na busca e mostrar modal
+    useEffect(() => {
+        if (modoBusca && !carregandoBusca && !erroBusca && dadosBuscaCompletos && dadosBuscaCompletos.total === 0) {
+            setModalNenhumResultado(true);
+        }
+    }, [modoBusca, carregandoBusca, erroBusca, dadosBuscaCompletos]);
+
     const handleBuscar = (filtros: FiltroBusca) => {
         setFiltrosBusca(filtros);
         setModoBusca(true);
+        setPaginaBusca(1); // Reset para primeira página
     };
 
     const voltarParaListagem = () => {
         setModoBusca(false);
         setFiltrosBusca(null);
+        setPaginaBusca(1);
+    };
+
+    // Funções de navegação para busca
+    const irParaPaginaBusca = (numeroPagina: number) => {
+        setPaginaBusca(numeroPagina);
+    };
+
+    const irParaPaginaAnteriorBusca = () => {
+        if (paginaBusca > 1) {
+            setPaginaBusca(paginaBusca - 1);
+        }
+    };
+
+    const irParaProximaPaginaBusca = () => {
+        if (paginaBusca < totalPaginasBusca) {
+            setPaginaBusca(paginaBusca + 1);
+        }
+    };
+
+    const irParaPrimeiraPaginaBusca = () => {
+        setPaginaBusca(1);
+    };
+
+    const irParaUltimaPaginaBusca = () => {
+        setPaginaBusca(totalPaginasBusca);
     };
 
     // EXPOR FUNÇÕES DE DEBUG NO CONSOLE (apenas em desenvolvimento)
@@ -189,7 +275,10 @@ function Home() {
                             maxWidth: '400px'
                         }}
                     >
-                        <FormularioBuscaSimples onBuscar={handleBuscar} />
+                        <FormularioBuscaSimples 
+                            onBuscar={handleBuscar} 
+                            onLimpar={voltarParaListagem}
+                        />
                     </div>
 
                     {/* Estatísticas */}
@@ -263,13 +352,26 @@ function Home() {
                             alignItems: 'center',
                             marginBottom: 20 
                         }}>
-                            <h2 style={{ 
-                                fontSize: 24, 
-                                fontWeight: 600,
-                                margin: 0
-                            }}>
-                                Resultados da Busca
-                            </h2>
+                            <div>
+                                <h2 style={{ 
+                                    fontSize: 24, 
+                                    fontWeight: 600,
+                                    margin: 0,
+                                    marginBottom: 4
+                                }}>
+                                    Resultados da Busca - {statusAtivo === 'DESAPARECIDO' ? 'Pessoas Desaparecidas' : 'Pessoas Localizadas'}
+                                </h2>
+                                {totalResultadosBusca > 0 && (
+                                    <p style={{ 
+                                        fontSize: 14, 
+                                        color: '#6b7280',
+                                        margin: 0
+                                    }}>
+                                        {totalResultadosBusca} {totalResultadosBusca === 1 ? 'pessoa encontrada' : 'pessoas encontradas'}
+                                        {totalPaginasBusca > 1 && ` • Página ${paginaBusca} de ${totalPaginasBusca}`}
+                                    </p>
+                                )}
+                            </div>
                             <button
                                 onClick={voltarParaListagem}
                                 style={{
@@ -301,30 +403,32 @@ function Home() {
                                 <p>{(erroBusca as Error).message}</p>
                             </div>
                         ) : resultadosBusca && resultadosBusca.length > 0 ? (
-                            <div className="cards-grid">
-                                {resultadosBusca.map((pessoa: Pessoa) => (
-                                    <CardPessoa key={pessoa.id} {...pessoa} />
-                                ))}
-                            </div>
+                            <>
+                                <div className="cards-grid">
+                                    {resultadosBusca.map((pessoa: Pessoa) => (
+                                        <CardPessoa key={pessoa.id} {...pessoa} />
+                                    ))}
+                                </div>
+                                
+                                {/* Controles de paginação para busca */}
+                                {totalPaginasBusca > 1 && (
+                                    <ControlesPaginacao
+                                        paginaAtual={paginaBusca}
+                                        totalPaginas={totalPaginasBusca}
+                                        totalRegistros={totalResultadosBusca}
+                                        irParaPagina={irParaPaginaBusca}
+                                        irParaPaginaAnterior={irParaPaginaAnteriorBusca}
+                                        irParaProximaPagina={irParaProximaPaginaBusca}
+                                        irParaPrimeiraPagina={irParaPrimeiraPaginaBusca}
+                                        irParaUltimaPagina={irParaUltimaPaginaBusca}
+                                        temPaginaAnterior={paginaBusca > 1}
+                                        temProximaPagina={paginaBusca < totalPaginasBusca}
+                                    />
+                                )}
+                            </>
                         ) : (
-                            <div style={{
-                                textAlign: 'center',
-                                padding: '60px 20px',
-                                color: '#6b7280',
-                                backgroundColor: '#f9fafb',
-                                border: '1px dashed #e5e7eb',
-                                borderRadius: '12px',
-                                margin: '0 auto',
-                                maxWidth: '600px'
-                            }}>
-                                <h3 style={{ marginBottom: '12px', fontSize: '20px', fontWeight: '600' }}>
-                                    Nenhuma pessoa encontrada
-                                </h3>
-                                <p style={{ fontSize: '16px', lineHeight: '1.5' }}>
-                                    Nenhuma pessoa corresponde aos critérios de busca informados.
-                                    Tente ajustar os filtros e buscar novamente.
-                                </p>
-                            </div>
+                            /* Área vazia - o modal será mostrado quando não houver resultados */
+                            <div style={{ minHeight: '200px' }} />
                         )}
                     </div>
                 ) : (
@@ -416,6 +520,82 @@ function Home() {
                     </>
                 )}
             </div>
+
+            {/* Modal para quando não há resultados na busca */}
+            <Modal
+                isOpen={modalNenhumResultado}
+                onClose={() => setModalNenhumResultado(false)}
+                title="Nenhum resultado encontrado"
+                type="warning"
+            >
+                <div style={{ textAlign: 'center' }}>
+                    <p style={{ 
+                        fontSize: '16px', 
+                        lineHeight: '1.6', 
+                        color: '#374151',
+                        margin: '0 0 16px 0'
+                    }}>
+                        {statusAtivo === 'DESAPARECIDO' 
+                            ? 'Nenhuma pessoa desaparecida corresponde aos critérios de busca informados.'
+                            : 'Nenhuma pessoa localizada corresponde aos critérios de busca informados.'
+                        }
+                    </p>
+                    <p style={{ 
+                        fontSize: '14px', 
+                        color: '#6b7280',
+                        margin: '0 0 24px 0'
+                    }}>
+                        {statusAtivo === 'DESAPARECIDO' 
+                            ? 'Tente ajustar os filtros e buscar novamente, ou verifique se há pessoas com essas características.'
+                            : 'Tente ajustar os filtros ou verificar se há pessoas localizadas com essas características.'
+                        }
+                    </p>
+                    
+                    {/* Botões */}
+                    <div style={{ 
+                        display: 'flex', 
+                        gap: '12px', 
+                        justifyContent: 'center',
+                        flexWrap: 'wrap'
+                    }}>
+                        <button
+                            onClick={() => {
+                                setModalNenhumResultado(false);
+                                voltarParaListagem();
+                            }}
+                            style={{
+                                backgroundColor: '#6b7280',
+                                color: 'white',
+                                fontWeight: '500',
+                                padding: '10px 20px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                transition: 'background-color 0.2s'
+                            }}
+                        >
+                            Voltar à listagem
+                        </button>
+                        <button
+                            onClick={() => setModalNenhumResultado(false)}
+                            style={{
+                                backgroundColor: '#f59e0b',
+                                color: 'white',
+                                fontWeight: '500',
+                                padding: '10px 20px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                transition: 'background-color 0.2s'
+                            }}
+                        >
+                            Tentar nova busca
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { getPerson, enviarInformacoes } from '../api'
+import { getPerson } from '../api'
 import Loading from '../../../components/Loading'
 import EmptyState from '../../../components/EmptyState'
 import { useState } from 'react'

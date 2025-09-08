@@ -262,62 +262,115 @@ export async function buscarEstatisticas(): Promise<EstatisticasPessoas> {
 }
 
 // Função para buscar pessoas por filtro
-export async function buscarPessoasPorFiltro(filtros: FiltroBusca): Promise<Pessoa[]> {
+export async function buscarPessoasPorFiltro(filtros: FiltroBusca, statusFiltro?: 'DESAPARECIDO' | 'LOCALIZADO'): Promise<Pessoa[]> {
 	try {
-		console.log('Buscando pessoas por filtro:', filtros);
+		console.log('🔍 Buscando pessoas por filtro:', filtros);
+		console.log('📋 Status solicitado:', statusFiltro);
 		
-		// Construir URL com parâmetros
-		const parametros = new URLSearchParams();
-		
-		if (filtros.nome) {
-			parametros.append('nome', filtros.nome);
-		}
-		
-		if (filtros.sexo) {
-			parametros.append('sexo', filtros.sexo);
-		}
-		
-		if (filtros.idadeMinima !== undefined) {
-			parametros.append('idadeMinima', filtros.idadeMinima.toString());
-		}
-		
-		if (filtros.idadeMaxima !== undefined) {
-			parametros.append('idadeMaxima', filtros.idadeMaxima.toString());
-		}
-		
-		const url = `https://abitus-api.geia.vip/v1/pessoas/aberto/filtro?${parametros.toString()}`;
-		
-		const response = await fetch(url, {
-			method: 'GET',
-			headers: {
-				'accept': '*/*'
-			}
-		});
-		
-		if (!response.ok) {
-			throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
-		}
-		
-		const dados = await response.json();
-		
-		// A API retorna um objeto com 'content' que contém o array de pessoas
-		if (dados && dados.content && Array.isArray(dados.content)) {
-			console.log(`Encontradas ${dados.content.length} pessoas com o filtro`);
-			return dados.content;
-		}
-		
-		// Fallback para compatibilidade (caso a API mude)
-		if (Array.isArray(dados)) {
-			console.log(`Encontradas ${dados.length} pessoas com o filtro`);
-			return dados;
-		}
-		
-		throw new Error('API retornou dados em formato inesperado');
+		// SEMPRE usar busca local para garantir que os filtros funcionem corretamente
+		console.log('📋 Usando busca local para garantir filtros corretos...');
+		const todasAsPessoas = await buscarTodosOsRegistros();
+		return filtrarPessoasLocalmente(todasAsPessoas, filtros, statusFiltro);
 		
 	} catch (error) {
-		console.error('Erro ao buscar pessoas por filtro:', error);
+		console.error('❌ Erro ao buscar pessoas por filtro:', error);
 		return [];
 	}
+}
+
+// Função para filtrar pessoas localmente quando a API falha
+function filtrarPessoasLocalmente(pessoas: Pessoa[], filtros: FiltroBusca, statusFiltro?: 'DESAPARECIDO' | 'LOCALIZADO'): Pessoa[] {
+	console.log('🔎 Filtrando localmente com:', filtros);
+	console.log('� Status do filtro:', statusFiltro);
+	console.log('�📊 Total de pessoas antes do filtro:', pessoas.length);
+	
+	// Primeiro, filtrar por status se especificado
+	let pessoasFiltradas = pessoas;
+	if (statusFiltro) {
+		pessoasFiltradas = pessoas.filter(pessoa => {
+			const estaLocalizada = pessoa.ultimaOcorrencia.dataLocalizacao !== null;
+			if (statusFiltro === 'LOCALIZADO') {
+				return estaLocalizada;
+			} else {
+				return !estaLocalizada;
+			}
+		});
+		console.log(`📈 Após filtro de status (${statusFiltro}): ${pessoasFiltradas.length} pessoas`);
+	}
+	
+	// Log das idades encontradas para debug
+	const pessoasComIdadeZero = pessoasFiltradas.filter(p => Number(p.idade) === 0);
+	if (pessoasComIdadeZero.length > 0) {
+		console.log('⚠️ Encontradas pessoas com idade 0:', pessoasComIdadeZero.map(p => ({ nome: p.nome, idade: p.idade })));
+	}
+	
+	const idades = pessoasFiltradas.map(p => ({ nome: p.nome, idade: p.idade, tipo: typeof p.idade }));
+	console.log('📈 Primeiras 10 idades encontradas:', idades.slice(0, 10));
+	
+	const resultado = pessoasFiltradas.filter(pessoa => {
+		// Converter idade para número uma vez só
+		const idadePessoa = Number(pessoa.idade);
+		
+		// Log básico para cada pessoa sendo verificada
+		console.log(`👤 Verificando ${pessoa.nome}: idade=${pessoa.idade} (convertida: ${idadePessoa})`);
+		
+		// SEMPRE filtrar pessoas com idade inválida quando há filtro de idade
+		if ((filtros.idadeMinima !== undefined || filtros.idadeMaxima !== undefined)) {
+			if (isNaN(idadePessoa) || idadePessoa <= 0) {
+				console.log(`❌ ${pessoa.nome} rejeitado por idade inválida: ${idadePessoa}`);
+				return false;
+			}
+		}
+		
+		// Filtro por nome (case-insensitive e com busca parcial)
+		if (filtros.nome && filtros.nome.trim() !== '') {
+			const nomeMinusculo = pessoa.nome.toLowerCase();
+			const filtroNomeMinusculo = filtros.nome.toLowerCase().trim();
+			if (!nomeMinusculo.includes(filtroNomeMinusculo)) {
+				console.log(`❌ ${pessoa.nome} rejeitado por nome`);
+				return false;
+			}
+		}
+		
+		// Filtro por sexo
+		if (filtros.sexo) {
+			const sexoEsperado = filtros.sexo === 'M' ? 'MASCULINO' : 'FEMININO';
+			if (pessoa.sexo !== sexoEsperado) {
+				console.log(`❌ ${pessoa.nome} rejeitado por sexo: ${pessoa.sexo} !== ${sexoEsperado}`);
+				return false;
+			}
+		}
+		
+		// Filtro por idade mínima
+		if (filtros.idadeMinima !== undefined) {
+			const idadeMinima = Number(filtros.idadeMinima);
+			if (idadePessoa < idadeMinima) {
+				console.log(`❌ ${pessoa.nome} rejeitado por idade mínima: ${idadePessoa} < ${idadeMinima}`);
+				return false;
+			}
+		}
+		
+		// Filtro por idade máxima
+		if (filtros.idadeMaxima !== undefined) {
+			const idadeMaxima = Number(filtros.idadeMaxima);
+			if (idadePessoa > idadeMaxima) {
+				console.log(`❌ ${pessoa.nome} rejeitado por idade máxima: ${idadePessoa} > ${idadeMaxima}`);
+				return false;
+			}
+		}
+		
+		console.log(`✅ ${pessoa.nome} aceito no filtro (idade: ${idadePessoa})`);
+		return true;
+	});
+	
+	console.log(`🎯 Resultado da filtragem: ${resultado.length} pessoas encontradas`);
+	
+	// Log final das pessoas aceitas
+	if (resultado.length > 0) {
+		console.log('✅ Pessoas aceitas:', resultado.map(p => ({ nome: p.nome, idade: p.idade })));
+	}
+	
+	return resultado;
 }
 
 export async function getPerson(id: string): Promise<Pessoa> {

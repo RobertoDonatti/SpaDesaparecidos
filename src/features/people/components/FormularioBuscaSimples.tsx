@@ -3,37 +3,102 @@ import type { FiltroBusca } from '../types';
 
 interface FormularioBuscaSimplesProps {
     onBuscar: (filtros: FiltroBusca) => void;
+    onLimpar?: () => void;
 }
 
-export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps) {
+export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSimplesProps) {
     const [filtros, setFiltros] = useState<FiltroBusca>({});
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+    const validateForm = (): boolean => {
+        const newErrors: { [key: string]: string } = {};
+
+        // Verificar se pelo menos um filtro foi preenchido
+        if (!filtros.nome && !filtros.sexo && !filtros.idadeMinima && !filtros.idadeMaxima) {
+            newErrors.geral = 'Preencha pelo menos um campo para buscar';
+        }
+
+        // Validar idade mínima
+        if (filtros.idadeMinima !== undefined) {
+            const idadeMin = Number(filtros.idadeMinima);
+            if (isNaN(idadeMin) || idadeMin <= 0) {
+                newErrors.geral = 'Idade mínima deve ser um número maior que 0';
+            }
+        }
+
+        // Validar idade máxima
+        if (filtros.idadeMaxima !== undefined) {
+            const idadeMax = Number(filtros.idadeMaxima);
+            if (isNaN(idadeMax) || idadeMax <= 0) {
+                newErrors.geral = 'Idade máxima deve ser um número maior que 0';
+            }
+        }
+
+        // Validar se idade mínima é menor que máxima
+        if (filtros.idadeMinima !== undefined && filtros.idadeMaxima !== undefined) {
+            const idadeMin = Number(filtros.idadeMinima);
+            const idadeMax = Number(filtros.idadeMaxima);
+            if (idadeMin > idadeMax) {
+                newErrors.geral = 'Idade mínima não pode ser maior que a idade máxima';
+            }
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Verificar se pelo menos um filtro foi preenchido
-        if (!filtros.nome && !filtros.sexo && !filtros.idadeMinima && !filtros.idadeMaxima) {
-            alert('Por favor, preencha pelo menos um campo para buscar');
-            return;
+        if (validateForm()) {
+            onBuscar(filtros);
         }
-
-        onBuscar(filtros);
     };
 
     const handleLimpar = () => {
         setFiltros({});
+        setErrors({});
+        // Chamar a função de limpar do componente pai se existir
+        if (onLimpar) {
+            onLimpar();
+        }
     };
 
-    const handleInputChange = (campo: keyof FiltroBusca, valor: string | number) => {
+    const handleInputChange = (campo: keyof FiltroBusca, valor: string | number | undefined) => {
         setFiltros(prev => ({
             ...prev,
             [campo]: valor === '' ? undefined : valor
         }));
+
+        // Limpar erro geral quando o usuário começar a preencher algum campo
+        if (errors.geral && valor !== '' && valor !== undefined) {
+            setErrors(prev => ({ ...prev, geral: '' }));
+        }
     };
 
     return (
         <div style={estiloFormulario}>
             <h2 style={estiloTitulo}>Buscar Pessoa Desaparecida</h2>
+            
+            {/* Erro geral */}
+            {errors.geral && (
+                <div style={{ 
+                    background: '#fef2f2', 
+                    border: '1px solid #fecaca',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    marginBottom: '16px'
+                }}>
+                    <p style={{ 
+                        color: '#dc2626', 
+                        fontSize: '14px', 
+                        margin: 0,
+                        fontWeight: '500'
+                    }}>
+                        {errors.geral}
+                    </p>
+                </div>
+            )}
             
             <form onSubmit={handleSubmit} style={estiloForm}>
                 {/* Primeira linha: Nome e Sexo */}
@@ -46,7 +111,10 @@ export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps
                             placeholder="Digite o nome da pessoa"
                             value={filtros.nome || ''}
                             onChange={(e) => handleInputChange('nome', e.target.value)}
-                            style={estiloInput}
+                            style={{
+                                ...estiloInput,
+                                borderColor: errors.geral ? '#ef4444' : '#d1d5db'
+                            }}
                         />
                     </div>
 
@@ -56,7 +124,10 @@ export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps
                         <select
                             value={filtros.sexo || ''}
                             onChange={(e) => handleInputChange('sexo', e.target.value as 'M' | 'F')}
-                            style={estiloInput}
+                            style={{
+                                ...estiloInput,
+                                borderColor: errors.geral ? '#ef4444' : '#d1d5db'
+                            }}
                         >
                             <option value="">Todos</option>
                             <option value="M">Masculino</option>
@@ -73,11 +144,14 @@ export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps
                         <input
                             type="number"
                             placeholder="Ex: 18"
-                            min="0"
+                            min="1"
                             max="120"
                             value={filtros.idadeMinima || ''}
-                            onChange={(e) => handleInputChange('idadeMinima', parseInt(e.target.value) || '')}
-                            style={estiloInput}
+                            onChange={(e) => handleInputChange('idadeMinima', e.target.value ? parseInt(e.target.value) : undefined)}
+                            style={{
+                                ...estiloInput,
+                                borderColor: errors.geral ? '#ef4444' : '#d1d5db'
+                            }}
                         />
                     </div>
 
@@ -87,11 +161,14 @@ export function FormularioBuscaSimples({ onBuscar }: FormularioBuscaSimplesProps
                         <input
                             type="number"
                             placeholder="Ex: 65"
-                            min="0"
+                            min="1"
                             max="120"
                             value={filtros.idadeMaxima || ''}
-                            onChange={(e) => handleInputChange('idadeMaxima', parseInt(e.target.value) || '')}
-                            style={estiloInput}
+                            onChange={(e) => handleInputChange('idadeMaxima', e.target.value ? parseInt(e.target.value) : undefined)}
+                            style={{
+                                ...estiloInput,
+                                borderColor: errors.geral ? '#ef4444' : '#d1d5db'
+                            }}
                         />
                     </div>
                 </div>

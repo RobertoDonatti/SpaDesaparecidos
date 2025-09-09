@@ -5,21 +5,17 @@ import type { Pessoa } from "../types";
 export default function CardPessoa(pessoa: Pessoa) {
 	const fallback = "https://placehold.co/640x480?text=Sem+foto";
 	
-	// Extrair informações do objeto
 	const sexoFormatado = pessoa.sexo === "MASCULINO" ? "Masculino" : "Feminino";
 	const idadeSexo = `${pessoa.idade} anos, ${sexoFormatado}`;
 	
-	// Extrair cidade e estado do localDesaparecimentoConcat
 	const localParts = pessoa.ultimaOcorrencia.localDesaparecimentoConcat.split(' - ');
 	const local = localParts.length > 1 ? localParts[1] : pessoa.ultimaOcorrencia.localDesaparecimentoConcat;
 	
-	// Satus atualizado para considerar o sexo do indivíduo
 	const status = pessoa.ultimaOcorrencia.dataLocalizacao 
 		? (pessoa.sexo === "MASCULINO" ? "Localizado" : "Localizada")
 		: (pessoa.sexo === "MASCULINO" ? "Desaparecido" : "Desaparecida");
 	const statusColor = pessoa.ultimaOcorrencia.dataLocalizacao ? "#22c55e" : "#ef4444";
 	
-	// Data de desaparecimento
 	const dataDesaparecimento = pessoa.ultimaOcorrencia.dtDesaparecimento;
 
 	return (

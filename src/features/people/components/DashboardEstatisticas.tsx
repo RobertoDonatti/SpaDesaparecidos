@@ -73,7 +73,6 @@ export function DashboardEstatisticas() {
 	);
 }
 
-// Estilos
 const estiloContainer: React.CSSProperties = {
 	display: 'grid',
 	gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',

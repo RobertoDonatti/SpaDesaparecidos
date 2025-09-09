@@ -1,6 +1,5 @@
 import type { Pessoa } from './types';
 
-// Dados de fallback para desenvolvimento quando API não está disponível
 export const dadosFallback: Pessoa[] = [
     {
         id: 1,
@@ -244,7 +243,6 @@ export const dadosFallback: Pessoa[] = [
     }
 ];
 
-// Função para simular estatísticas baseadas nos dados de fallback
 export function obterEstatisticasFallback() {
     const desaparecidos = dadosFallback.filter(p => p.ultimaOcorrencia.dataLocalizacao === null);
     const localizados = dadosFallback.filter(p => p.ultimaOcorrencia.dataLocalizacao !== null);

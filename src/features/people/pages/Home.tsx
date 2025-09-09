@@ -5,13 +5,12 @@ import { FiltrosStatus } from "../components/FiltrosStatus";
 import CardPessoa from "../components/CardPessoa";
 import { LoadingSkeleton } from "../../../components/LoadingSkeleton";
 import Modal from "../../../components/Modal";
-import { limparCacheGlobal, verificarStatusCache, buscarPessoasPorFiltro } from "../api";
+import { buscarPessoasPorFiltro } from "../api";
 import { useQuery } from '@tanstack/react-query';
 import { buscarEstatisticas } from '../api';
 import type { Pessoa, FiltroBusca } from "../types";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { devLog, devError } from "../../../utils/devLogger";
 
 function Home() {
     const [modoBusca, setModoBusca] = useState(false);
@@ -22,18 +21,15 @@ function Home() {
     
     const registrosPorPaginaBusca = 12; // Mesmo padrão da listagem normal
 
-    // Detectar navegação para /home e resetar busca se necessário
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const shouldReset = searchParams.get('reset');
         
-        // Se o parâmetro reset estiver presente, limpar a busca
         if (shouldReset === 'true') {
             setModoBusca(false);
             setFiltrosBusca(null);
             setPaginaBusca(1);
             
-            // Limpar o parâmetro reset da URL para não ficar visível
             if (location.search.includes('reset=true')) {
                 window.history.replaceState({}, '', '/home');
             }
@@ -41,47 +37,37 @@ function Home() {
     }, [location]);
 
     const {
-        // Dados
         pessoas,
         
-        // Informações de paginação
         paginaAtual,
         totalRegistros,
         totalPaginas,
         
-        // Status atual
         statusAtivo,
         
-        // Estados de carregamento
         carregandoDados,
         erroCarregamento,
         
-        // Navegação
         irParaPagina,
         irParaPaginaAnterior,
         irParaProximaPagina,
         irParaPrimeiraPagina,
         irParaUltimaPagina,
         
-        // Controle de status
         alterarStatus,
         
-        // Estados úteis
         temPaginaAnterior,
         temProximaPagina,
         
-        // Utilidades
         recarregarDados
     } = usePaginacaoDinamica();
 
-    // Buscar estatísticas para os filtros
     const { data: estatisticas } = useQuery({
         queryKey: ['estatisticas'],
         queryFn: buscarEstatisticas,
         staleTime: 1000 * 60 * 5, // 5 minutos
     });
 
-    // Query para busca personalizada com paginação
     const { 
         data: dadosBuscaCompletos, 
         isLoading: carregandoBusca, 
@@ -91,7 +77,6 @@ function Home() {
         queryFn: async () => {
             const todoResultados = await buscarPessoasPorFiltro(filtrosBusca!, statusAtivo as 'DESAPARECIDO' | 'LOCALIZADO');
             
-            // Aplicar paginação local
             const inicio = (paginaBusca - 1) * registrosPorPaginaBusca;
             const fim = inicio + registrosPorPaginaBusca;
             const resultadosPaginados = todoResultados.slice(inicio, fim);
@@ -105,22 +90,19 @@ function Home() {
             };
         },
         enabled: modoBusca && !!filtrosBusca,
-        staleTime: 1000 * 60 * 2
+        staleTime: 1000 * 60 * 5 // 5 minutos
     });
 
-    // Extrair dados para facilitar o uso
     const resultadosBusca = dadosBuscaCompletos?.resultados || [];
     const totalResultadosBusca = dadosBuscaCompletos?.total || 0;
     const totalPaginasBusca = dadosBuscaCompletos?.totalPaginas || 0;
 
-    // Resetar página de busca quando o status muda
     useEffect(() => {
         if (modoBusca) {
             setPaginaBusca(1);
         }
     }, [statusAtivo, modoBusca]);
 
-    // Detectar quando não há resultados na busca e mostrar modal
     useEffect(() => {
         if (modoBusca && !carregandoBusca && !erroBusca && dadosBuscaCompletos && dadosBuscaCompletos.total === 0) {
             setModalNenhumResultado(true);
@@ -139,7 +121,6 @@ function Home() {
         setPaginaBusca(1);
     };
 
-    // Funções de navegação para busca
     const irParaPaginaBusca = (numeroPagina: number) => {
         setPaginaBusca(numeroPagina);
     };
@@ -164,49 +145,11 @@ function Home() {
         setPaginaBusca(totalPaginasBusca);
     };
 
-    // EXPOR FUNÇÕES DE DEBUG NO CONSOLE (apenas em desenvolvimento)
-    if (typeof window !== 'undefined' && import.meta.env.DEV) {
-        (window as any).limparCache = limparCacheGlobal;
-        (window as any).verificarCache = verificarStatusCache;
-        (window as any).forcarAtualizacao = () => {
-            limparCacheGlobal();
-            recarregarDados();
-            devLog('Cache limpo e dados recarregados!');
-        };
-
-        // Log para depuração (apenas em desenvolvimento)
-        devLog('Home - Estado atual:', {
-            carregandoDados,
-            erroCarregamento: erroCarregamento?.message,
-            totalPessoas: pessoas.length,
-            paginaAtual,
-            totalPaginas,
-            totalRegistros,
-            temControles: totalRegistros > 0,
-            modoBusca,
-            filtrosBusca
-        });
-
-        // Log adicional para debug
-        if (pessoas.length > 0) {
-            devLog('Dados da paginação:', {
-                'Pessoas recebidas': pessoas.length,
-                'Página atual': paginaAtual,
-                'Total de páginas': totalPaginas,
-                'Total de registros': totalRegistros,
-                'Deveria mostrar paginação': totalRegistros > 0
-            });
-        }
-    }
-
-    // Estados de carregamento e erro
     if (carregandoDados) {
         return <LoadingSkeleton />;
     }
     
     if (erroCarregamento) {
-        // Log de erro apenas em desenvolvimento
-        devError('Erro detalhado:', erroCarregamento);
         return (
             <div style={{ 
                 padding: 20, 

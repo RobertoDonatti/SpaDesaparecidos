@@ -25,12 +25,10 @@ export function ControlesPaginacao({
 	temPaginaAnterior,
 	temProximaPagina
 }: ControlesPaginacaoProps) {
-	// CORREÇÃO: Mostrar controles mesmo se há apenas 1 página (para feedback do usuário)
 	if (totalRegistros === 0) {
 		return null; // Só ocultar se não há registros
 	}
 	
-	// Calcular quais números de página mostrar
 	const paginasParaMostrar = calcularPaginasVisiveis(paginaAtual, totalPaginas);
 	
 	const estiloContainer: React.CSSProperties = {
@@ -142,11 +140,9 @@ export function ControlesPaginacao({
 	);
 }
 
-// Função auxiliar para calcular quais páginas mostrar
 function calcularPaginasVisiveis(paginaAtual: number, totalPaginas: number): (number | string)[] {
 	const paginasVisiveis: (number | string)[] = [];
 	
-	// Se temos poucas páginas, mostrar todas
 	if (totalPaginas <= 7) {
 		for (let i = 1; i <= totalPaginas; i++) {
 			paginasVisiveis.push(i);
@@ -154,29 +150,23 @@ function calcularPaginasVisiveis(paginaAtual: number, totalPaginas: number): (nu
 		return paginasVisiveis;
 	}
 	
-	// Sempre mostrar primeira página
 	paginasVisiveis.push(1);
 	
-	// Calcular intervalo ao redor da página atual
 	const inicio = Math.max(2, paginaAtual - 1);
 	const fim = Math.min(totalPaginas - 1, paginaAtual + 1);
 	
-	// Adicionar "..." se necessário antes do intervalo
 	if (inicio > 2) {
 		paginasVisiveis.push('...');
 	}
 	
-	// Adicionar páginas do intervalo
 	for (let i = inicio; i <= fim; i++) {
 		paginasVisiveis.push(i);
 	}
 	
-	// Adicionar "..." se necessário depois do intervalo
 	if (fim < totalPaginas - 1) {
 		paginasVisiveis.push('...');
 	}
 	
-	// Sempre mostrar última página
 	if (totalPaginas > 1) {
 		paginasVisiveis.push(totalPaginas);
 	}

@@ -64,14 +64,12 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
         await onSubmit(formData);
         setIsSuccess(true);
         
-        // Resetar formulário após sucesso
         setFormData({
           informacao: '',
           dataInformacao: '',
           arquivo: undefined
         });
         
-        // Fechar automaticamente após 3 segundos
         setTimeout(() => {
           setIsSuccess(false);
           onCancel();
@@ -87,7 +85,6 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
     const file = e.target.files?.[0];
     setFormData(prev => ({ ...prev, arquivo: file }));
     
-    // Limpar erro do arquivo quando um novo é selecionado
     if (errors.arquivo) {
       setErrors(prev => ({ ...prev, arquivo: '' }));
     }
@@ -96,7 +93,6 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
-    // Limpar erro do campo quando o usuário começar a digitar
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -118,7 +114,6 @@ const FormularioDetalhePessoa: React.FC<FormularioDetalhePessoaProps> = ({
         padding: '20px'
       }}
       onClick={(e) => {
-        // Fechar modal se clicar no overlay (fora do modal)
         if (e.target === e.currentTarget && !isLoading) {
           onCancel();
         }

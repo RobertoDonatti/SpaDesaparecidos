@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { FiltroBusca } from '../types';
 
 interface FormularioBuscaSimplesProps {
@@ -9,32 +9,48 @@ interface FormularioBuscaSimplesProps {
 export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSimplesProps) {
     const [filtros, setFiltros] = useState<FiltroBusca>({});
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [isMobile, setIsMobile] = useState(false);
+    const [isVerySmall, setIsVerySmall] = useState(false);
+
+    useEffect(() => {
+        const checkScreenSize = () => {
+            const width = window.innerWidth;
+            setIsMobile(width < 768);
+            setIsVerySmall(width < 400);
+        };
+        
+        checkScreenSize();
+        window.addEventListener('resize', checkScreenSize);
+        
+        return () => window.removeEventListener('resize', checkScreenSize);
+    }, []);
 
     const validateForm = (): boolean => {
         const newErrors: { [key: string]: string } = {};
 
-        // Verificar se pelo menos um filtro foi preenchido
-        if (!filtros.nome && !filtros.sexo && !filtros.idadeMinima && !filtros.idadeMaxima) {
+        const nomePreenchido = filtros.nome && filtros.nome.trim() !== '';
+        const sexoPreenchido = filtros.sexo !== undefined;
+        const idadeMinPreenchida = filtros.idadeMinima !== undefined && filtros.idadeMinima !== null;
+        const idadeMaxPreenchida = filtros.idadeMaxima !== undefined && filtros.idadeMaxima !== null;
+        
+        if (!nomePreenchido && !sexoPreenchido && !idadeMinPreenchida && !idadeMaxPreenchida) {
             newErrors.geral = 'Preencha pelo menos um campo para buscar';
         }
 
-        // Validar idade mínima
         if (filtros.idadeMinima !== undefined) {
             const idadeMin = Number(filtros.idadeMinima);
-            if (isNaN(idadeMin) || idadeMin <= 0) {
-                newErrors.geral = 'Idade mínima deve ser um número maior que 0';
+            if (isNaN(idadeMin) || idadeMin < 0) {
+                newErrors.geral = 'Idade mínima deve ser um número maior ou igual a 0';
             }
         }
 
-        // Validar idade máxima
         if (filtros.idadeMaxima !== undefined) {
             const idadeMax = Number(filtros.idadeMaxima);
-            if (isNaN(idadeMax) || idadeMax <= 0) {
-                newErrors.geral = 'Idade máxima deve ser um número maior que 0';
+            if (isNaN(idadeMax) || idadeMax < 0) {
+                newErrors.geral = 'Idade máxima deve ser um número maior ou igual a 0';
             }
         }
 
-        // Validar se idade mínima é menor que máxima
         if (filtros.idadeMinima !== undefined && filtros.idadeMaxima !== undefined) {
             const idadeMin = Number(filtros.idadeMinima);
             const idadeMax = Number(filtros.idadeMaxima);
@@ -58,7 +74,6 @@ export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSi
     const handleLimpar = () => {
         setFiltros({});
         setErrors({});
-        // Chamar a função de limpar do componente pai se existir
         if (onLimpar) {
             onLimpar();
         }
@@ -70,15 +85,23 @@ export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSi
             [campo]: valor === '' ? undefined : valor
         }));
 
-        // Limpar erro geral quando o usuário começar a preencher algum campo
         if (errors.geral && valor !== '' && valor !== undefined) {
             setErrors(prev => ({ ...prev, geral: '' }));
         }
     };
 
     return (
-        <div style={estiloFormulario}>
-            <h2 style={estiloTitulo}>Buscar Pessoa Desaparecida</h2>
+        <div style={{
+            ...estiloFormulario,
+            padding: isVerySmall ? '12px' : isMobile ? '16px' : '24px'
+        }}>
+            <h2 style={{
+                ...estiloTitulo,
+                fontSize: isVerySmall ? '16px' : isMobile ? '18px' : '20px',
+                marginBottom: isVerySmall ? '12px' : '16px'
+            }}>
+                {isVerySmall ? "Buscar Pessoa" : "Buscar Pessoa Desaparecida"}
+            </h2>
             
             {/* Erro geral */}
             {errors.geral && (
@@ -102,13 +125,17 @@ export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSi
             
             <form onSubmit={handleSubmit} style={estiloForm}>
                 {/* Primeira linha: Nome e Sexo */}
-                <div style={estiloLinhaSuperior}>
+                <div style={{
+                    ...estiloLinhaSuperior,
+                    gridTemplateColumns: isVerySmall ? '1fr' : isMobile ? 'repeat(auto-fit, minmax(120px, 1fr))' : 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: isVerySmall ? '8px' : '12px'
+                }}>
                     {/* Campo Nome */}
                     <div style={estiloCampo}>
                         <label style={estiloLabel}>Nome</label>
                         <input
                             type="text"
-                            placeholder="Digite o nome da pessoa"
+                            placeholder={isVerySmall ? "Nome" : isMobile ? "Nome da pessoa" : "Digite o nome da pessoa"}
                             value={filtros.nome || ''}
                             onChange={(e) => handleInputChange('nome', e.target.value)}
                             style={{
@@ -137,17 +164,29 @@ export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSi
                 </div>
 
                 {/* Segunda linha: Idades */}
-                <div style={estiloLinhaIdades}>
+                <div style={{
+                    ...estiloLinhaIdades,
+                    gridTemplateColumns: isVerySmall ? '1fr' : isMobile ? 'repeat(auto-fit, minmax(80px, 1fr))' : 'repeat(auto-fit, minmax(100px, 1fr))',
+                    gap: isVerySmall ? '8px' : '12px'
+                }}>
                     {/* Campo Idade Mínima */}
                     <div style={estiloCampo}>
                         <label style={estiloLabel}>Idade Mínima</label>
                         <input
                             type="number"
-                            placeholder="Ex: 18"
-                            min="1"
+                            placeholder={isVerySmall ? "0" : isMobile ? "Min" : "Ex: 18"}
+                            min="0"
                             max="120"
-                            value={filtros.idadeMinima || ''}
-                            onChange={(e) => handleInputChange('idadeMinima', e.target.value ? parseInt(e.target.value) : undefined)}
+                            value={filtros.idadeMinima !== undefined ? filtros.idadeMinima : ''}
+                            onChange={(e) => {
+                                const valor = e.target.value;
+                                if (valor === '') {
+                                    handleInputChange('idadeMinima', undefined);
+                                } else {
+                                    const numeroValor = parseInt(valor);
+                                    handleInputChange('idadeMinima', isNaN(numeroValor) ? undefined : numeroValor);
+                                }
+                            }}
                             style={{
                                 ...estiloInput,
                                 borderColor: errors.geral ? '#ef4444' : '#d1d5db'
@@ -160,11 +199,19 @@ export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSi
                         <label style={estiloLabel}>Idade Máxima</label>
                         <input
                             type="number"
-                            placeholder="Ex: 65"
-                            min="1"
+                            placeholder={isVerySmall ? "120" : isMobile ? "Máx" : "Ex: 65"}
+                            min="0"
                             max="120"
-                            value={filtros.idadeMaxima || ''}
-                            onChange={(e) => handleInputChange('idadeMaxima', e.target.value ? parseInt(e.target.value) : undefined)}
+                            value={filtros.idadeMaxima !== undefined ? filtros.idadeMaxima : ''}
+                            onChange={(e) => {
+                                const valor = e.target.value;
+                                if (valor === '') {
+                                    handleInputChange('idadeMaxima', undefined);
+                                } else {
+                                    const numeroValor = parseInt(valor);
+                                    handleInputChange('idadeMaxima', isNaN(numeroValor) ? undefined : numeroValor);
+                                }
+                            }}
                             style={{
                                 ...estiloInput,
                                 borderColor: errors.geral ? '#ef4444' : '#d1d5db'
@@ -174,20 +221,65 @@ export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSi
                 </div>
 
                 {/* Botões */}
-                <div style={estiloBotoes}>
+                <div style={{
+                    ...estiloBotoes,
+                    flexDirection: isVerySmall ? 'column' : 'row',
+                    gap: isVerySmall ? '8px' : '12px'
+                }}>
                     <button
                         type="submit"
-                        style={estiloBotaoPrimario}
+                        style={{
+                            padding: isVerySmall ? '12px 16px' : '14px 24px',
+                            backgroundColor: '#dc2626',
+                            color: '#ffffff',
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            borderColor: '#dc2626',
+                            borderRadius: '6px',
+                            fontSize: isVerySmall ? '14px' : '15px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s',
+                            height: isVerySmall ? '42px' : '48px',
+                            flex: '1',
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: 'none',
+                            minWidth: isVerySmall ? 'auto' : '120px'
+                        }}
                     >
-                        Buscar
+                        {isVerySmall ? 'BUSCAR' : '🔍 BUSCAR'}
                     </button>
                     
                     <button
                         type="button"
                         onClick={handleLimpar}
-                        style={estiloBotaoSecundario}
+                        style={{
+                            padding: isVerySmall ? '12px 16px' : '14px 24px',
+                            backgroundColor: '#ffffff',
+                            color: '#374151',
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            borderColor: '#d1d5db',
+                            borderRadius: '6px',
+                            fontSize: isVerySmall ? '14px' : '15px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s',
+                            height: isVerySmall ? '42px' : '48px',
+                            flex: '1',
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: isVerySmall ? 'auto' : '120px'
+                        }}
                     >
-                        Limpar
+                        {isVerySmall ? 'LIMPAR' : '❌ LIMPAR'}
                     </button>
                 </div>
             </form>
@@ -195,7 +287,6 @@ export function FormularioBuscaSimples({ onBuscar, onLimpar }: FormularioBuscaSi
     );
 }
 
-// Estilos
 const estiloFormulario: React.CSSProperties = {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
@@ -210,7 +301,9 @@ const estiloTitulo: React.CSSProperties = {
     margin: '0 0 16px 0',
     fontSize: '20px',
     fontWeight: '600',
-    color: '#1f2937'
+    color: '#1f2937',
+    wordWrap: 'break-word',
+    lineHeight: '1.2'
 };
 
 const estiloForm: React.CSSProperties = {
@@ -219,14 +312,14 @@ const estiloForm: React.CSSProperties = {
 
 const estiloLinhaSuperior: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
     gap: '12px',
     marginBottom: '12px'
 };
 
 const estiloLinhaIdades: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
     gap: '12px',
     marginBottom: '20px'
 };
@@ -244,51 +337,25 @@ const estiloLabel: React.CSSProperties = {
 };
 
 const estiloInput: React.CSSProperties = {
-    padding: '8px 12px',
+    padding: '10px 12px',
     borderWidth: '1px',
     borderStyle: 'solid',
     borderColor: '#d1d5db',
     borderRadius: '6px',
     fontSize: '14px',
     outline: 'none',
-    transition: 'border-color 0.2s'
+    transition: 'border-color 0.2s',
+    width: '100%',
+    boxSizing: 'border-box',
+    minWidth: '0',
+    height: '44px'
 };
 
 const estiloBotoes: React.CSSProperties = {
     display: 'flex',
-    gap: '6px',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap'
-};
-
-const estiloBotaoPrimario: React.CSSProperties = {
-    padding: '10px 16px',
-    backgroundColor: '#dc2626',
-    color: '#ffffff',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: '#dc2626',
-    borderRadius: '6px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-    flex: '1',
-    minWidth: '100px'
-};
-
-const estiloBotaoSecundario: React.CSSProperties = {
-    padding: '10px 16px',
-    backgroundColor: '#ffffff',
-    color: '#374151',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: '#d1d5db',
-    borderRadius: '6px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s',
-    flex: '1',
-    minWidth: '100px'
+    gap: '12px',
+    justifyContent: 'stretch',
+    flexWrap: 'wrap',
+    width: '100%',
+    marginTop: '16px'
 };

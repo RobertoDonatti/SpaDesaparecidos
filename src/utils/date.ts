@@ -1,11 +1,9 @@
-
 export function formatDateBR(iso?: string | null) {
   if (!iso) return "—";
   const d = new Date(iso);
   return d.toLocaleDateString("pt-BR");
 }
 
-// "4 dias", "2 meses", "1 ano"
 export function sinceBR(iso?: string | null) {
   if (!iso) return "—";
   const now = new Date();

@@ -15,28 +15,24 @@ function DetalhesPessoa() {
 		queryKey: ['person', id],
 		queryFn: () => getPerson(id!),
 		enabled: !!id,
+		staleTime: 1000 * 60 * 5 // 5 minutos
 	})
 
 	if (isLoading) return <Loading />
 	if (isError || !data) return <EmptyState title="Não encontrado" description="Registro inexistente." />
 
-	// Extrair informações
 	const sexoFormatado = data.sexo === "MASCULINO" ? "Masculino" : "Feminino";
 	
-	// Verificar se a pessoa foi localizada
 	const foiLocalizada = !!data.ultimaOcorrencia.dataLocalizacao;
 	
-	// Status com base no sexo e situação
 	const statusTexto = foiLocalizada 
 		? (data.sexo === "MASCULINO" ? "LOCALIZADO" : "LOCALIZADA")
 		: (data.sexo === "MASCULINO" ? "DESAPARECIDO" : "DESAPARECIDA");
 	
-	// Cores: verde para localizado, vermelho para desaparecido
 	const statusColor = foiLocalizada ? "#22c55e" : "#ef4444";
 	
 	const tempoDesaparecido = sinceBR(data.ultimaOcorrencia.dtDesaparecimento);
 	
-	// Texto para tempo desaparecido/localizado com concordância de gênero
 	const textoTempo = foiLocalizada
 		? (data.sexo === "MASCULINO" 
 			? `LOCALIZADO EM ${formatDateBR(data.ultimaOcorrencia.dataLocalizacao!)}`
@@ -92,7 +88,6 @@ function DetalhesPessoa() {
 					{data.idade} anos - {sexoFormatado}
 				</p>				{/* Dados condicionais baseados no status */}
 				{foiLocalizada ? (
-					// Seção para pessoas localizadas
 					<div style={{ marginBottom: 32 }}>
 						<h2 style={{ 
 							fontSize: 20, 
@@ -111,7 +106,6 @@ function DetalhesPessoa() {
 						</div>
 					</div>
 				) : (
-					// Seção para pessoas desaparecidas
 					<div style={{ marginBottom: 32 }}>
 						<h2 style={{ 
 							fontSize: 20, 
@@ -157,7 +151,6 @@ function DetalhesPessoa() {
 
 				{/* Botões condicionais */}
 				{foiLocalizada ? (
-					// Seção para pessoas localizadas
 					<div style={{ marginBottom: 32 }}>
 						<h3 style={{ 
 							fontSize: 18, 
@@ -196,7 +189,6 @@ function DetalhesPessoa() {
 						</div>
 					</div>
 				) : (
-					// Botão de informação para pessoas desaparecidas
 					<button 
 						className="detalhes-botao-principal-responsivo"
 						onClick={() => setShowForm(!showForm)}
@@ -267,16 +259,12 @@ function DetalhesPessoa() {
 						border: '1px solid #e5e7eb'
 					}}>
 						<FormularioDetalhePessoa 
-							onSubmit={async (data) => {
-								console.log('Dados do formulário:', data);
+							onSubmit={async () => {
 								setIsSubmitting(true);
 								
 								try {
-									// TEMPORÁRIO: mockup para simular o funcionamento
 									// a API esta esperando autenticação e não possuo acesso, por isso o mock  
 									await new Promise(resolve => setTimeout(resolve, 2000));
-									console.log('Informação enviada com sucesso (simulado)!');
-									
 									
 								} catch (error) {
 									console.error('Erro ao enviar informação:', error);

@@ -53,7 +53,6 @@ const Modal: React.FC<ModalProps> = ({
         padding: '20px'
       }}
       onClick={(e) => {
-        // Fechar modal se clicar no overlay (fora do modal)
         if (e.target === e.currentTarget) {
           onClose();
         }
